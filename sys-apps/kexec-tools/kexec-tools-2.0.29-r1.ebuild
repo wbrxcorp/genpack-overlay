@@ -6,7 +6,7 @@ SRC_URI="https://www.kernel.org/pub/linux/utils/kernel/kexec/${P/_/-}.tar.xz"
 KEYWORDS="riscv"
 
 DESCRIPTION="Load another kernel from the currently executing Linux kernel"
-HOMEPAGE="https://kernel.org/pub/linux/utils/kernel/kexec/"
+HOMEPAGE="https://kernel.org/pub/linux/utils/kernel/kexec/ https://github.com/riscv-collab/kexec-tools/commit/379d8f3ef3219bd400c7893d0a262b079c1de408"
 
 S="${WORKDIR}/${P/_/-}"
 
