@@ -7,7 +7,6 @@ KEYWORDS="amd64"
 IUSE="+firmware +btrfs +xfs"
 
 DEPEND="
-	genpack/genpack-progs
 	sys-kernel/gentoo-kernel[initramfs]
 	app-admin/eclean-kernel
 	sys-kernel/dracut-systemimg
