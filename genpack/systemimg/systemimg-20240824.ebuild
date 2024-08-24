@@ -6,9 +6,9 @@ SLOT="0"
 KEYWORDS="amd64"
 IUSE="+firmware +btrfs +xfs"
 
-DEPEND="sys-kernel/gentoo-kernel[initramfs] sys-kernel/dracut-systemimg"
+DEPEND="sys-kernel/gentoo-kernel[initramfs] app-admin/eclean-kernel sys-kernel/dracut-systemimg"
 RDEPEND="
-	firmware? ( sys-kernel/linux-firmware )
+	firmware? ( sys-kernel/linux-firmware[-initramfs] )
 	btrfs? ( sys-fs/btrfs-progs )
 	xfs? ( sys-fs/xfsprogs )
 "
