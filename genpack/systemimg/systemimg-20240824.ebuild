@@ -8,6 +8,7 @@ IUSE="+firmware +btrfs +xfs"
 
 DEPEND="sys-kernel/gentoo-kernel[initramfs] app-admin/eclean-kernel sys-kernel/dracut-systemimg"
 RDEPEND="
+	genpack/genpack-install
 	firmware? ( sys-kernel/linux-firmware[-initramfs] )
 	btrfs? ( sys-fs/btrfs-progs )
 	xfs? ( sys-fs/xfsprogs )

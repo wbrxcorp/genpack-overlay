@@ -24,5 +24,7 @@ src_compile() {
 
 src_install() {
     emake DESTDIR="${D}" install || die "emake install failed"
+    # genpack-install is moved to separate package
+    rm -f "${D}/usr/bin/genpack-install"
 }
 
