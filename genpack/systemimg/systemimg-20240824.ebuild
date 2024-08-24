@@ -25,9 +25,11 @@ src_install() {
 	insinto /usr/lib/systemd/system
 	doins "${FILESDIR}/systemimg-init.service" "${FILESDIR}/systemimg-shutdown.service"
 	exeinto /usr/lib/systemimg
-	doexe "${FILESDIR}/init"
+	doexe "${FILESDIR}/init" "${FILESDIR}/shutdown"
 	insinto /usr/lib/systemimg/init.d
 	doins "${FILESDIR}/autologin.py" "${FILESDIR}/hostname.py" "${FILESDIR}/install_memtest86.py" "${FILESDIR}/swapfile.py"
+	insinto /usr/lib/systemimg/shutdown.d
+	doins "${FILESDIR}/boottimetxt.py"
 	insinto /boot/grub
 	doins "${FILESDIR}/grub.cfg"
 }

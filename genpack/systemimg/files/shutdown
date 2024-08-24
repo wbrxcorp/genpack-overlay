@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+
+import configparser,os,logging,sys,glob
+from importlib import machinery
+
+SHUTDOWN_D = "/usr/lib/systemimg/shutdown.d"
+
+def load_inifile(filename):
+    parser = configparser.ConfigParser()
+    if os.path.isfile(filename):
+        with open(filename) as f:
+            parser.read_string("[_default]\n" + f.read())
+    return parser
+
+def execute_shutdown_scripts():
+    i = 0
+    sys.path.append(SHUTDOWN_D)
+    for py in glob.glob(os.path.join(SHUTDOWN_D, "*.py")):
+        try:
+            mod = machinery.SourceFileLoader("_endscript%d" % i, py).load_module()
+            i += 1
+            if not hasattr(mod, "shutdown"): continue
+            #else
+            logging.debug("Executing shutdown script %s..." % py)
+            mod.shutdown()
+        except Exception:
+            logging.exception("Exception in %s" % py)
+
+if __name__ == "__main__":
+    inifile = load_inifile("/run/initramfs/boot/system.ini")
+    debug = inifile.getboolean("_default", "debug", fallback=False)
+    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+    if debug: logging.info("Debug log enabled.")
+    if os.path.isdir(SHUTDOWN_D):
+        logging.info("Running shutdown scripts...")
+        try:
+            execute_shutdown_scripts()
+        except Exception:
+            logging.exception("Exception occured while running shutdown script")
