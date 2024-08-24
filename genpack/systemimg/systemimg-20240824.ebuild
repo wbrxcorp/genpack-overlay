@@ -6,7 +6,13 @@ SLOT="0"
 KEYWORDS="amd64"
 IUSE="+firmware +btrfs +xfs"
 
-DEPEND="sys-kernel/gentoo-kernel[initramfs] app-admin/eclean-kernel sys-kernel/dracut-systemimg"
+DEPEND="
+	genpack/genpack-progs
+	sys-kernel/gentoo-kernel[initramfs]
+	app-admin/eclean-kernel
+	sys-kernel/dracut-systemimg
+"
+
 RDEPEND="
 	genpack/genpack-install
 	firmware? ( sys-kernel/linux-firmware[-initramfs] )
