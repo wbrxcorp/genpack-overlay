@@ -1,0 +1,12 @@
+[Unit]
+Description=Cleanup system.img based system
+DefaultDependencies=no
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=rm -f /run/initramfs/boot/boottime.txt
+RemainAfterExit=true
+
+[Install]
+WantedBy=shutdown.target

@@ -11,7 +11,7 @@ KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
 RDEPEND="sys-apps/util-linux"
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND} dev-python/zstandard"
 
 pkg_setup() {
     export EGIT_COMMIT_DATE="$(echo ${PV} | sed 's/\(....\)\(..\)\(..\)/\1-\2-\3/')"
