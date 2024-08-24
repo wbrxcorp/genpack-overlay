@@ -12,7 +12,7 @@ DEPEND="dev-cpp/argparse"
 RDEPEND="
 	sys-block/parted
 	sys-fs/dosfstools
-	sys-boot/grub[grub_platforms_efi-32]
+	sys-boot/grub
 	sys-fs/mtools
 	dev-libs/libisoburn
 	sys-apps/kbd
