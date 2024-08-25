@@ -30,7 +30,9 @@ src_install() {
 	doins "${FILESDIR}/autologin.py" "${FILESDIR}/hostname.py" "${FILESDIR}/install_memtest86.py" "${FILESDIR}/swapfile.py"
 	insinto /usr/lib/systemimg/shutdown.d
 	doins "${FILESDIR}/boottimetxt.py"
-	insinto /boot/grub
+	insinto /usr/lib/genpack/systemimg
 	doins "${FILESDIR}/grub.cfg"
+	exeinto /usr/lib/genpack/package-scripts
+	doexe "${FILESDIR}/systemimg.sh"
 }
 
