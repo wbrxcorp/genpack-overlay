@@ -4,6 +4,7 @@ inherit git-r3
 DESCRIPTION="system.img installer"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-install"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-install.git"
+EGIT_COMMIT="0859012efb5ae7ca1a76ba744b8981593689145f"
 
 SLOT="0"
 KEYWORDS="amd64"
@@ -17,11 +18,6 @@ RDEPEND="
 	dev-libs/libisoburn
 	sys-apps/kbd
 "
-
-pkg_setup() {
-    export EGIT_COMMIT_DATE="$(echo ${PV} | sed 's/\(....\)\(..\)\(..\)/\1-\2-\3/')"
-    einfo "EGIT_COMMIT_DATE set to ${EGIT_COMMIT_DATE}"
-}
 
 src_compile() {
     emake || die "emake failed"
