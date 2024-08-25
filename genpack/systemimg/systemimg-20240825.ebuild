@@ -34,5 +34,6 @@ src_install() {
 	doins "${FILESDIR}/grub.cfg"
 	exeinto /usr/lib/genpack/package-scripts
 	doexe "${FILESDIR}/systemimg.sh"
+	doexe "${FILESDIR}/20-systemimg-installkernel.sh"
 }
 
