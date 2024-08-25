@@ -6,6 +6,8 @@ SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
+RDEPEND="net-misc/bridge-utils"
+
 S="${WORKDIR}"
 
 src_install() {
