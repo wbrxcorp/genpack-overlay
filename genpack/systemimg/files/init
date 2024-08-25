@@ -28,7 +28,7 @@ def execute_configuration_scripts(ini=None):
             if arglen == 2:
                 mod.configure("/", ini)
             elif arglen == 1:
-                mod.configure("/")
+                mod.configure(ini)
         except Exception:
             logging.exception("Exception in %s" % py)
 
