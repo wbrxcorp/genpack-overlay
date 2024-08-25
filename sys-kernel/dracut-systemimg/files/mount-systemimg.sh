@@ -2,14 +2,27 @@
 
 [ "${root%%:*}" = "systemimg" ] || exit 0
 
-udevsettle
-
 UUID=${root#systemimg:}
 
 info "Boot partition UUID=$UUID"
 
 SYSTEMIMG_BOOT_PARTITION="$(label_uuid_to_dev UUID=$UUID)"
 SYSTEMIMG_DATA_PARTITION="$(label_uuid_to_dev LABEL=data-$UUID)"
+
+if [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ]; then
+       info "Waiting for boot partition to be recocnized by system..."
+       sleep 1
+       timeout=5
+       while [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ] && [ "$timeout" -gt 0 ]; do
+               sleep 1
+               timeout=$((timeout - 1))
+       done
+       if [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ]; then
+               info "Timeout. assuming that /dev/sda1 is a boot partition and /dev/sda2 is a data partition"
+               SYSTEMIMG_BOOT_PARTITION="/dev/sda1"
+               SYSTEMIMG_DATA_PARTITION="/dev/sda2"
+       fi
+fi
 
 [ -e /run/initramfs/boot ] || mkdir -m 0755 -p /run/initramfs/boot
 eval $(blkid  -o udev -s TYPE "$SYSTEMIMG_BOOT_PARTITION")
