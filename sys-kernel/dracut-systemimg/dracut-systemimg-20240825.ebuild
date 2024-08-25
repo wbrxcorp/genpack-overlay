@@ -14,7 +14,7 @@ src_install() {
 	doexe "${FILESDIR}/check-systemimg-root.sh" "${FILESDIR}/module-setup.sh" "${FILESDIR}/mount-systemimg.sh"
 
 	dodir /usr/lib/dracut/dracut.conf.d
-	echo 'omit_dracutmodules+=" systemd "' > "${D}/etc/dracut.conf.d/no-systemd.conf"
-	echo 'add_dracutmodules+=" systemimg "' > "${D}/etc/dracut.conf.d/systemimg.conf"
+	echo 'omit_dracutmodules+=" systemd "' > "${D}/usr/lib/dracut/dracut.conf.d/no-systemd.conf"
+	echo 'add_dracutmodules+=" systemimg "' > "${D}/usr/lib/dracut/dracut.conf.d/systemimg.conf"
 }
 
