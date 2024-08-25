@@ -14,7 +14,7 @@ DEPEND="
 
 RDEPEND="
 	genpack/genpack-install
-	firmware? ( sys-kernel/linux-firmware[-initramfs] )
+	firmware? ( sys-kernel/linux-firmware )
 	btrfs? ( sys-fs/btrfs-progs )
 	xfs? ( sys-fs/xfsprogs )
 "
