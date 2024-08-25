@@ -4,7 +4,7 @@ DESCRIPTION="stuffs for system.img"
 
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="+firmware +btrfs +xfs"
+IUSE="baremetal +btrfs +xfs"
 
 DEPEND="
 	sys-kernel/gentoo-kernel[initramfs]
@@ -14,7 +14,21 @@ DEPEND="
 
 RDEPEND="
 	genpack/genpack-install
-	firmware? ( sys-kernel/linux-firmware )
+	baremetal? ( 
+		sys-kernel/linux-firmware
+		sys-fs/lsscsi
+		sys-apps/lshw
+		sys-apps/usbutils
+		sys-apps/pciutils
+		sys-apps/dmidecode
+		sys-apps/lm-sensors
+		sys-apps/usb_modeswitch
+		sys-power/cpupower
+		sys-apps/smartmontools
+		sys-apps/ethtool
+		app-misc/beep
+		sys-apps/memtest86+
+	)
 	btrfs? ( sys-fs/btrfs-progs )
 	xfs? ( sys-fs/xfsprogs )
 "

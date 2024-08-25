@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import configparser,os,logging,sys,glob
+import configparser,os,logging,sys,glob,subprocess
 from importlib import machinery
 from inspect import signature
 
@@ -17,6 +17,7 @@ def execute_configuration_scripts(ini=None):
     if ini is None: ini = configparser.ConfigParser()
     i = 0
     sys.path.append(INIT_D)
+    need_to_reload_systemd = False
     for py in glob.glob(os.path.join(INIT_D, "*.py")):
         try:
             mod = machinery.SourceFileLoader("_confscript%d" % i, py).load_module()
@@ -26,11 +27,14 @@ def execute_configuration_scripts(ini=None):
             logging.debug("Executing configuration script %s..." % py)
             arglen = len(signature(mod.configure).parameters)
             if arglen == 2:
-                mod.configure("/", ini)
+                if mod.configure("/", ini) == True: need_to_reload_systemd = True
             elif arglen == 1:
-                mod.configure(ini)
+                if mod.configure(ini) == True: need_to_reload_systemd = True
         except Exception:
             logging.exception("Exception in %s" % py)
+    if need_to_reload_systemd:
+        logging.info("Reloading systemd...")
+        subprocess.call(["systemctl", "daemon-reload"])
 
 if __name__ == "__main__":
     inifile = load_inifile("/run/initramfs/boot/system.ini")
