@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+
+import configparser,os,logging,sys,glob,subprocess
+from pathlib import Path
+from importlib import machinery
+from inspect import signature
+
+INIT_D = "/usr/lib/genpack-init"
+
+def load_inifile(filename):
+    parser = configparser.ConfigParser()
+    if os.path.isfile(filename):
+        with open(filename) as f:
+            parser.read_string("[_default]\n" + f.read())
+    return parser
+
+def execute_configuration_scripts(ini=None):
+    if ini is None: ini = configparser.ConfigParser()
+    i = 0
+    sys.path.append(INIT_D)
+    for py in glob.glob(os.path.join(INIT_D, "*.py")):
+        try:
+            mod = machinery.SourceFileLoader("_confscript%d" % i, py).load_module()
+            i += 1
+            if not hasattr(mod, "configure"): continue
+            #else
+            logging.debug("Executing configuration script %s..." % py)
+            arglen = len(signature(mod.configure).parameters)
+            if arglen == 1:
+                mod.configure(ini)
+            elif arglen == 0:
+                mod.configure()
+            else:
+                logging.error("Invalid number of arguments in %s" % py)
+        except Exception:
+            logging.exception("Exception in %s" % py)
+
+if __name__ == "__main__":
+    if os.getpid() != 1: raise Exception("PID must be 1")
+    inifile = load_inifile("/run/initramfs/rw/system.ini")
+    debug = inifile.getboolean("_default", "debug", fallback=False)
+    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO,
+        format="%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s",
+        handlers=[logging.FileHandler("/var/log/paravirt-init.log", mode='w'), logging.StreamHandler()],
+        force=True)
+    if debug: logging.info("Debug log enabled.")
+    if os.path.isdir(INIT_D):
+        logging.info("Configuring system...")
+        try:
+            execute_configuration_scripts(inifile)
+        except Exception:
+            logging.exception("Exception occured while configuring system")
+    # exec real init
+    os.execl("/sbin/init", "/sbin/init")
