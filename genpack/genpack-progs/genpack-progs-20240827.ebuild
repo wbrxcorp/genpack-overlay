@@ -10,8 +10,10 @@ SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
-RDEPEND="sys-apps/util-linux"
-DEPEND="${RDEPEND} dev-python/zstandard"
+RDEPEND="
+    sys-apps/util-linux app-portage/gentoolkit dev-util/pkgdev app-arch/zip dev-debug/strace
+    net-analyzer/tcpdump app-editors/vim net-misc/netkit-telnetd
+"
 
 pkg_setup() {
     export EGIT_COMMIT_DATE="$(echo ${PV} | sed 's/\(....\)\(..\)\(..\)/\1-\2-\3/')"
