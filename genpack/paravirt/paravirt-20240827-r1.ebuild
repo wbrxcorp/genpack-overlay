@@ -26,7 +26,8 @@ src_install() {
 	exeinto /usr/bin
 	doexe "${FILESDIR}/paravirt-init"
 
-	keepdir /usr/lib/genpack-init
+	insinto /usr/lib/genpack-init
+    doins "${FILESDIR}/99default_network_interface.py"
 
 	# script for genpack
 	exeinto /usr/lib/genpack/package-scripts
