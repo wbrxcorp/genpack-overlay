@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-systemctl enable systemimg-init systemimg-shutdown
+systemctl enable systemimg-shutdown
 if [ ! -f /etc/hostname ]; then
         echo -n "$ARTIFACT" > /etc/hostname
 fi
