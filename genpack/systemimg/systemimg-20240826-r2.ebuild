@@ -33,14 +33,23 @@ RDEPEND="
 S="${WORKDIR}"
 
 src_install() {
-	insinto /usr/lib/systemd/system
-	doins "${FILESDIR}/systemimg-init.service" "${FILESDIR}/systemimg-shutdown.service"
-	exeinto /usr/lib/systemimg
-	doexe "${FILESDIR}/init" "${FILESDIR}/shutdown"
+	# proxy init
+	exeinto /usr/bin
+	doexe "${FILESDIR}/systemimg-init"
+
+	# configuration scripts called by systemimg-init
 	insinto /usr/lib/systemimg/init.d
 	doins "${FILESDIR}/autologin.py" "${FILESDIR}/hostname.py" "${FILESDIR}/install_memtest86.py" "${FILESDIR}/swapfile.py"
+
+	# shutdown script
+	insinto /usr/lib/systemd/system
+	doins "${FILESDIR}/systemimg-shutdown.service"
+	exeinto /usr/lib/systemimg
+	doexe "${FILESDIR}/shutdown"
 	insinto /usr/lib/systemimg/shutdown.d
 	doins "${FILESDIR}/boottimetxt.py"
+
+	# script for genpack
 	insinto /usr/lib/genpack/systemimg
 	doins "${FILESDIR}/grub.cfg"
 	exeinto /usr/lib/genpack/package-scripts

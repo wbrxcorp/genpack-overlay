@@ -1,12 +1,12 @@
-import os,logging,subprocess
+import os,logging
 
-def configure(root, ini):
+def configure(ini):
     autologin = ini.getboolean("_default", "autologin", fallback=None)
     if autologin is None: 
         logging.debug("leaving autologin configuration.")
         return
     #else
-    service_dir = os.path.join(root, "etc/systemd/system/getty@tty1.service.d")
+    service_dir = os.path.join("/etc/systemd/system/getty@tty1.service.d")
     conf_file = os.path.join(service_dir, "autologin-configured-by-overlay-init.conf")
     if autologin:
         os.makedirs(service_dir, exist_ok=True)
@@ -18,5 +18,3 @@ def configure(root, ini):
     else:
         if os.path.isfile(conf_file): os.unlink(conf_file)
         logging.info("Autologin disabled.")
-    subprocess.run(["systemctl", "daemon-reload"], check=True)
-    subprocess.run(["systemctl", "restart", "getty@tty1"], check=True)

@@ -42,7 +42,6 @@ def configure(ini):
         logging.debug("%s created" % conf)
 
     subprocess.run(["systemctl", "enable", "wpa_supplicant@%s" % interface], check=True)
-    subprocess.run(["systemctl", "daemon-reload"], check=True)
     logging.info("Service wpa_supplicant@%s enabled." % interface)
 
 if __name__ == "__main__":

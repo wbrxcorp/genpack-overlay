@@ -3,8 +3,8 @@ import os,shutil,fcntl,math,ctypes,ctypes.util,array,stat,subprocess,logging
 libc = ctypes.CDLL(ctypes.util.find_library('c'), use_errno=True)
 libc.fallocate.argtypes = (ctypes.c_int, ctypes.c_int, ctypes.c_int64, ctypes.c_int64)
 
-def get_total_memory_in_gib(root):
-    meminfo = os.path.join(root, "proc/meminfo")
+def get_total_memory_in_gib():
+    meminfo = os.path.join("/proc/meminfo")
     if not os.path.isfile(meminfo): return None
     with open(meminfo) as f:
         for line in f:
@@ -70,16 +70,16 @@ def create_swapfile(swapfile, swapfile_size):
     #else
     return True
 
-def configure(root, ini):
+def configure(ini):
     swapfile_size = 0
-    rw_dir = os.path.join(root, "run/initramfs/rw")
+    rw_dir = "/run/initramfs/rw"
     if not os.path.ismount(rw_dir):
         logging.warning("%s if not a mountpoint" % rw_dir)
         return
 
     # check if rw layer is appropreate to place swapfile
     swapfile_ok = False
-    with open(os.path.join(root, "proc/mounts")) as f:
+    with open("/proc/mounts") as f:
         for line in f:
             if not line.startswith("/dev/"): continue
             cols = line.split(' ', 2)
@@ -94,7 +94,7 @@ def configure(root, ini):
     swapfile = os.path.join(rw_dir, "swapfile")
     if ini.getboolean("_default", "swapfile", fallback=True):
         if not os.path.exists(swapfile): 
-            swapfile_size = determine_swapfile_size(rw_dir, get_total_memory_in_gib(root))
+            swapfile_size = determine_swapfile_size(rw_dir, get_total_memory_in_gib())
             if swapfile_size > 0:
                 logging.info("Swapfile size: %d GiB" % swapfile_size)
                 create_swapfile(swapfile, swapfile_size)

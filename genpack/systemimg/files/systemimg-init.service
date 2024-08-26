@@ -1,9 +1,0 @@
-[Unit]
-Description=Initialize system.img based system
-
-[Service]
-Type=oneshot
-ExecStart=/usr/lib/systemimg/init
-
-[Install]
-WantedBy=sysinit.target

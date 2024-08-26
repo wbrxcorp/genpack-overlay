@@ -1,6 +1,6 @@
 import os,shutil,logging
 
-def configure(ini):
+def configure():
     efi_path = "/run/initramfs/boot/efi/boot/memtest86.efi"
     if os.path.exists(efi_path): 
         logging.debug("memtest86 EFI binary already installed")
