@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-import configparser,os,logging,sys,glob
+import configparser,os,logging,sys,glob,subprocess
+from pathlib import Path
 from importlib import machinery
 from inspect import signature
 
@@ -12,6 +13,22 @@ def load_inifile(filename):
         with open(filename) as f:
             parser.read_string("[_default]\n" + f.read())
     return parser
+
+def coldplug_modules():
+    MODPROBE="/sbin/modprobe"
+    modaliases = set()
+    for path in Path("/sys/devices").rglob("modalias"):
+        with open(path) as f:
+            modaliases.add(f.read().strip())
+
+    modprobe_query = subprocess.run([MODPROBE, "-a", "-q", "-R"] + list(modaliases), stdout=subprocess.PIPE, text=True)
+    modules = set()
+    for module_name in modprobe_query.stdout.strip().split():
+        modules.add(module_name)
+
+    logging.info("Loading modules: %s" % (",".join(modules)))
+    subprocess.call([MODPROBE, "-a", "-b"] + list(modules))
+    return True
 
 def execute_configuration_scripts(ini=None):
     if ini is None: ini = configparser.ConfigParser()
@@ -43,6 +60,7 @@ if __name__ == "__main__":
         handlers=[logging.FileHandler("/var/log/systemimg-init.log", mode='w'), logging.StreamHandler()],
         force=True)
     if debug: logging.info("Debug log enabled.")
+    coldplug_modules()
     if os.path.isdir(INIT_D):
         logging.info("Configuring system...")
         try:
