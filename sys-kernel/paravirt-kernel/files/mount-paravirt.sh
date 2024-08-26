@@ -1,19 +1,22 @@
 #!/bin/sh
+[ "${root%%:*}" = "block" ] || exit 0
+
+RO=${root#block:}
 
 udevadm settle
 
-if [ ! -b "$root" ]; then
+if [ ! -b "$RO" ]; then
 	timeout=$(getargnum 5 1 180 rd.timeout)
-	info "Waiting for boot partition to be recognized by system(max $timeout sec)..."
+	info "Waiting for RO layer $RO to be recognized by system(max $timeout sec)..."
 	sleep 1
-	while [ ! -b "$root" ] && [ "$timeout" -gt 0 ]; do
+	while [ ! -b "$RO" ] && [ "$timeout" -gt 0 ]; do
 		sleep 1
 		timeout=$((timeout - 1))
 	done
 fi
 
 [ -e /run/initramfs/ro ] || mkdir -m 0755 -p /run/initramfs/ro
-mount -o ro -t squashfs "$root" /run/initramfs/ro || die "Failed to mount RO layer"
+mount -o ro -t squashfs "$RO" /run/initramfs/ro || die "Failed to mount RO layer"
 
 [ -e /run/initramfs/rw ] || mkdir -m 0755 -p /run/initramfs/rw
 if ! getargbool 0 paravirt.transient; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 check() {
-    require_kernel_modules btrfs xfs squashfs loop overlay || return 1
+    require_kernel_modules virtio_blk btrfs xfs squashfs loop overlay || return 1
     return 255
 }
 
@@ -10,7 +10,7 @@ depends() {
 }
 
 installkernel() {
-    hostonly="" instmods btrfs xfs squashfs loop overlay
+    hostonly="" instmods virtio_blk btrfs xfs squashfs loop overlay
 }
 
 install() {
