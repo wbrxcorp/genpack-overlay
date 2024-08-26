@@ -12,7 +12,7 @@ SYSTEMIMG_DATA_PARTITION="$(label_uuid_to_dev LABEL=data-$UUID)"
 if [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ]; then
        info "Waiting for boot partition to be recocnized by system..."
        sleep 1
-       timeout=5
+       timeout=$(getargnum 5 1 180 rd.timeout)
        while [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ] && [ "$timeout" -gt 0 ]; do
                sleep 1
                timeout=$((timeout - 1))
