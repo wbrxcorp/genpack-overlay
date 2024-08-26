@@ -25,9 +25,9 @@ src_install() {
 
 	dodir /usr/lib/genpack/package-scripts
 	if use binary; then
-		echo -e "#!/bin/sh\nemerge --config gentoo-kernel" > /usr/lib/genpack/package-scripts/20-systemimg-installkernel.sh
+		echo -e "#!/bin/sh\nemerge --config gentoo-kernel" > "${D}/usr/lib/genpack/package-scripts/20-systemimg-installkernel.sh"
 	else
-		echo -e "#!/bin/sh\nemerge --config gentoo-kernel-bin" > /usr/lib/genpack/package-scripts/20-systemimg-installkernel.sh
+		echo -e "#!/bin/sh\nemerge --config gentoo-kernel-bin" > "${D}/usr/lib/genpack/package-scripts/20-systemimg-installkernel.sh"
 	fi
 	fperms 0755 /usr/lib/genpack/package-scripts/20-systemimg-installkernel.sh
 }
