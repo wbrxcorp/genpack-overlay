@@ -31,6 +31,10 @@ eval $(blkid  -o udev -s TYPE "$SYSTEMIMG_BOOT_PARTITION")
 if [ "$ID_FS_TYPE" == "vfat" ]; then
 	/usr/bin/fsck.fat -aw "$SYSTEMIMG_BOOT_PARTITION"
 	mount -t vfat "$SYSTEMIMG_BOOT_PARTITION" /run/initramfs/boot || die "Failed to mount boot partition(FAT)"
+	if [ -f /run/initramfs/boot/system.cur ]; then
+		info "Found system.cur.  Renaming it to system.old"
+		mv /run/initramfs/boot/system.cur /run/initramfs/boot/system.old
+	fi
 	/usr/bin/date > /run/initramfs/boot/boottime.txt || info "creating boottime.txt failed"
 else
 	mount -t auto -o ro "$SYSTEMIMG_BOOT_PARTITION" /run/initramfs/boot || die "Failed to mount boot partition(readonly)"
