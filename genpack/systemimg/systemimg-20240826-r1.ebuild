@@ -6,13 +6,8 @@ SLOT="0"
 KEYWORDS="amd64"
 IUSE="baremetal +btrfs +xfs"
 
-DEPEND="
-	sys-kernel/gentoo-kernel[initramfs]
-	app-admin/eclean-kernel
-	sys-kernel/dracut-systemimg
-"
-
 RDEPEND="
+	sys-kernel/systemimg-kernel
 	genpack/genpack-install
 	baremetal? ( 
 		sys-kernel/linux-firmware
@@ -50,6 +45,4 @@ src_install() {
 	doins "${FILESDIR}/grub.cfg"
 	exeinto /usr/lib/genpack/package-scripts
 	doexe "${FILESDIR}/systemimg.sh"
-	doexe "${FILESDIR}/20-systemimg-installkernel.sh"
 }
-
