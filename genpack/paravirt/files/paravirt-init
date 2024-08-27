@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -B
 
 import configparser,os,logging,sys,glob,subprocess
 from pathlib import Path
