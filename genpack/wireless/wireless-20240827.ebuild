@@ -18,7 +18,7 @@ RDEPEND="
 src_install() {
 	insinto /etc/systemd/network
 	doins "${FILESDIR}/54-wlan.network"
-	insinto /usr/lib/systemimg/init.d
+	insinto /usr/lib/genpack-init
 	doins "${FILESDIR}/wifi.py"
 }
 
