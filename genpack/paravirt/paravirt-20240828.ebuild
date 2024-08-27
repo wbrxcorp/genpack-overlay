@@ -8,7 +8,9 @@ KEYWORDS="amd64 arm64 riscv"
 IUSE="+btrfs +xfs +wireguard"
 
 RDEPEND="
+    !genpack/systemimg
     sys-kernel/paravirt-kernel
+    sys-apps/genpack-init
     app-emulation/qemu-guest-agent
     sys-libs/liburing
     app-editors/nano
@@ -22,13 +24,6 @@ RDEPEND="
 S="${WORKDIR}"
 
 src_install() {
-	# proxy init
-	exeinto /usr/bin
-	doexe "${FILESDIR}/paravirt-init"
-
-	insinto /usr/lib/genpack-init
-    doins "${FILESDIR}/99default_network_interface.py"
-
 	# script for genpack
 	exeinto /usr/lib/genpack/package-scripts
 	doexe "${FILESDIR}/paravirt.sh"

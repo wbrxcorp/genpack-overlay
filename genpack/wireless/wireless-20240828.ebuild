@@ -13,6 +13,7 @@ RDEPEND="
 	net-wireless/iw
 	net-wireless/wireless-tools
 	net-wireless/bluez
+	net-wireless/hostapd
 "
 
 src_install() {

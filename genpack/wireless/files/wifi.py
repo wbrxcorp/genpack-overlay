@@ -1,4 +1,4 @@
-import os,subprocess,glob,logging,time
+import os,subprocess,glob,logging,time,builtins
 
 def get_wireless_interface_name(wait):
     for i in range(0, wait):
@@ -21,6 +21,8 @@ def configure(ini):
     for link in glob.glob("/etc/systemd/system/multi-user.target.wants/wpa_supplicant@*.service"):
         os.unlink(link)
         logging.debug("%s removed" % link)
+
+    hasattr(builtins, 'coldplug') and coldplug() # type: ignore
 
     interface = ini.get("_default", "wifi_interface", fallback=None)    
     if interface is None: interface = get_wireless_interface_name(ini.getint("_default", "wifi_wait", fallback=3))

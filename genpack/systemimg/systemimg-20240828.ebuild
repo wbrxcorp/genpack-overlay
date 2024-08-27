@@ -9,6 +9,7 @@ IUSE="baremetal +btrfs +xfs"
 RDEPEND="
 	!genpack/paravirt
 	sys-kernel/systemimg-kernel
+	sys-apps/genpack-init
 	genpack/genpack-install
 	baremetal? ( 
 		sys-kernel/linux-firmware
@@ -34,13 +35,8 @@ RDEPEND="
 S="${WORKDIR}"
 
 src_install() {
-	# proxy init
-	exeinto /usr/bin
-	doexe "${FILESDIR}/systemimg-init"
-
 	# configuration scripts called by systemimg-init
 	insinto /usr/lib/genpack-init
-	doins "${FILESDIR}/99default_network_interface.py"
 	doins "${FILESDIR}/autologin.py" "${FILESDIR}/hostname.py" "${FILESDIR}/install_memtest86.py" "${FILESDIR}/swapfile.py"
 
 	# shutdown script
