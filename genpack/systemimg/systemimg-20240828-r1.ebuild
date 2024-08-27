@@ -8,7 +8,7 @@ IUSE="baremetal +btrfs +xfs"
 
 RDEPEND="
 	!genpack/paravirt
-	sys-kernel/systemimg-kernel
+	sys-kernel/genpack-kernel
 	sys-apps/genpack-init
 	genpack/genpack-install
 	baremetal? ( 

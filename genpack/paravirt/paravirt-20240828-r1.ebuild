@@ -9,7 +9,7 @@ IUSE="+btrfs +xfs +wireguard"
 
 RDEPEND="
     !genpack/systemimg
-    sys-kernel/paravirt-kernel
+    sys-kernel/genpack-kernel
     sys-apps/genpack-init
     app-emulation/qemu-guest-agent
     sys-libs/liburing

@@ -28,8 +28,5 @@ src_install() {
     emake DESTDIR="${D}" install || die "emake install failed"
     # genpack-install is moved to separate package
     rm -f "${D}/usr/bin/genpack-install"
-
-	exeinto /usr/lib/genpack/package-scripts
-	doexe "${FILESDIR}/80-kernel-symlink.py"
 }
 
