@@ -14,5 +14,9 @@ installkernel() {
 }
 
 install() {
-    inst_hook mount 01 "$moddir/mount-paravirt.sh"     # overlay on top of block device
+    if [[ $genpack_transient ]]; then
+        inst_hook mount 01 "$moddir/mount-paravirt-transient.sh"    # overlay tmpfs on top of block device
+    else
+        inst_hook mount 01 "$moddir/mount-paravirt.sh"     # overlay on top of block device
+    fi
 }

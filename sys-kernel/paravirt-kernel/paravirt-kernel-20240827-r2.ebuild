@@ -6,7 +6,7 @@ DESCRIPTION="kernel and initramfs config for paravirt"
 
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
-IUSE="binary"
+IUSE="binary transient"
 
 RDEPEND="
 	binary? ( sys-kernel/gentoo-kernel-bin[initramfs] )
@@ -19,12 +19,15 @@ S="${WORKDIR}"
 
 src_install() {
 	exeinto /usr/lib/dracut/modules.d/90paravirt
-	doexe "${FILESDIR}/module-setup.sh" "${FILESDIR}/mount-paravirt.sh"
+	doexe "${FILESDIR}/module-setup.sh" "${FILESDIR}/mount-paravirt.sh" "${FILESDIR}/mount-paravirt-transient.sh"
 
 	dodir /usr/lib/dracut/dracut.conf.d
 	echo 'omit_dracutmodules+=" systemd "' > "${D}/usr/lib/dracut/dracut.conf.d/no-systemd.conf"
 	echo 'add_dracutmodules+=" paravirt "' > "${D}/usr/lib/dracut/dracut.conf.d/paravirt.conf"
 	echo 'realinitpath="/usr/bin/paravirt-init"' > "${D}/usr/lib/dracut/dracut.conf.d/realinitpath.conf"
+	if use transient; then
+		echo 'genpack_transient=1' > "${D}/usr/lib/dracut/dracut.conf.d/genpack_transient.conf"
+	fi
 
 	dodir /usr/lib/genpack/package-scripts
 	if use binary; then
