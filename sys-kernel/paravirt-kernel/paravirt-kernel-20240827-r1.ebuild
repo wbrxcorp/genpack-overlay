@@ -24,7 +24,7 @@ src_install() {
 	dodir /usr/lib/dracut/dracut.conf.d
 	echo 'omit_dracutmodules+=" systemd "' > "${D}/usr/lib/dracut/dracut.conf.d/no-systemd.conf"
 	echo 'add_dracutmodules+=" paravirt "' > "${D}/usr/lib/dracut/dracut.conf.d/paravirt.conf"
-	echo 'kernel_cmdline="init=/usr/bin/paravirt-init"' > "${D}/usr/lib/dracut/dracut.conf.d/paravirt_kernel_cmdline.conf"
+	echo 'realinitpath="/usr/bin/paravirt-init"' > "${D}/usr/lib/dracut/dracut.conf.d/realinitpath.conf"
 
 	dodir /usr/lib/genpack/package-scripts
 	if use binary; then
