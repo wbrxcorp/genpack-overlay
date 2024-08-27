@@ -5,7 +5,7 @@ Before=shutdown.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/lib/systemimg/shutdown
+ExecStart=rm -f /run/initramfs/boot/boottime.txt
 RemainAfterExit=true
 
 [Install]

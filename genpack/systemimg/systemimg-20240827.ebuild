@@ -7,6 +7,7 @@ KEYWORDS="amd64"
 IUSE="baremetal +btrfs +xfs"
 
 RDEPEND="
+	!genpack/paravirt
 	sys-kernel/systemimg-kernel
 	genpack/genpack-install
 	baremetal? ( 
@@ -38,16 +39,13 @@ src_install() {
 	doexe "${FILESDIR}/systemimg-init"
 
 	# configuration scripts called by systemimg-init
-	insinto /usr/lib/systemimg/init.d
+	insinto /usr/lib/genpack-init
+	doins "${FILESDIR}/99default_network_interface.py"
 	doins "${FILESDIR}/autologin.py" "${FILESDIR}/hostname.py" "${FILESDIR}/install_memtest86.py" "${FILESDIR}/swapfile.py"
 
 	# shutdown script
 	insinto /usr/lib/systemd/system
-	doins "${FILESDIR}/systemimg-shutdown.service"
-	exeinto /usr/lib/systemimg
-	doexe "${FILESDIR}/shutdown"
-	insinto /usr/lib/systemimg/shutdown.d
-	doins "${FILESDIR}/boottimetxt.py"
+	doins "${FILESDIR}/cleanup-boottimetxt.service"
 
 	# script for genpack
 	insinto /usr/lib/genpack/systemimg

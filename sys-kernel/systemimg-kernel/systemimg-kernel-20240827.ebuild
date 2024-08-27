@@ -7,6 +7,7 @@ KEYWORDS="amd64"
 IUSE="+genpack-ignore +binary"
 
 RDEPEND="
+	!sys-kernel/paravirt-kernel
 	binary? ( sys-kernel/gentoo-kernel-bin[initramfs] )
 	!binary? ( sys-kernel/gentoo-kernel[initramfs] )
 	sys-kernel/dracut
@@ -22,6 +23,7 @@ src_install() {
 	dodir /usr/lib/dracut/dracut.conf.d
 	echo 'omit_dracutmodules+=" systemd "' > "${D}/usr/lib/dracut/dracut.conf.d/no-systemd.conf"
 	echo 'add_dracutmodules+=" systemimg "' > "${D}/usr/lib/dracut/dracut.conf.d/systemimg.conf"
+	echo 'realinitpath="/usr/bin/systemimg-init"' > "${D}/usr/lib/dracut/dracut.conf.d/realinitpath.conf"
 
 	dodir /usr/lib/genpack/package-scripts
 	if use binary; then

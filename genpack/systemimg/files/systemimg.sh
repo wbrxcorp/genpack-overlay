@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-systemctl enable systemimg-shutdown
+systemctl enable cleanup-boottimetxt.service
 if [ ! -f /etc/hostname ]; then
         echo -n "$ARTIFACT" > /etc/hostname
 fi
