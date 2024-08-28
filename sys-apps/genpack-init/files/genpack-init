@@ -57,19 +57,24 @@ def execute_configuration_scripts(ini=None):
 
 if __name__ == "__main__":
     if os.getpid() != 1: raise Exception("PID must be 1")
-    inifile = load_inifile("/run/initramfs/boot/system.ini" if os.path.isdir("/run/initramfs/boot") else "/run/initramfs/rw/system.ini")
-    debug = inifile.getboolean("_default", "debug", fallback=False)
-    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO,
-        format="%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s",
-        handlers=[logging.FileHandler("/var/log/genpack-init.log", mode='w'), logging.StreamHandler()],
-        force=True)
-    if debug: logging.info("Debug log enabled.")
-    builtins.coldplug = coldplug
-    if os.path.isdir(INIT_D):
-        logging.info("Configuring system...")
-        try:
-            execute_configuration_scripts(inifile)
-        except Exception:
-            logging.exception("Exception occured while configuring system")
+    try:
+        inifile = load_inifile("/run/initramfs/boot/system.ini" if os.path.isdir("/run/initramfs/boot") else "/run/initramfs/rw/system.ini")
+        debug = inifile.getboolean("_default", "debug", fallback=False)
+        logging.basicConfig(level=logging.DEBUG if debug else logging.INFO,
+            format="%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s",
+            handlers=[logging.FileHandler("/var/log/genpack-init.log", mode='w'), logging.StreamHandler()],
+            force=True)
+        if debug: logging.info("Debug log enabled.")
+        builtins.coldplug = coldplug
+        if os.path.isdir(INIT_D):
+            logging.info("Configuring system...")
+            try:
+                execute_configuration_scripts(inifile)
+            except Exception:
+                logging.exception("Exception occured while configuring system")
+    except Exception:
+        # when in such case, we can't log to file
+        print("Exception occured while initializing genpack-init")
+        print(sys.exc_info())
     # exec real init
     os.execl("/sbin/init", "/sbin/init")
