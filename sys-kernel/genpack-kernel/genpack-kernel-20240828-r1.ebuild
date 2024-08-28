@@ -3,7 +3,7 @@ EAPI=8
 DESCRIPTION="kernel and initramfs config for genpack images"
 
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64 riscv"
 IUSE="+binary transient"
 
 RDEPEND="
