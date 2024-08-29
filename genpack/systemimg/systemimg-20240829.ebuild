@@ -3,13 +3,12 @@ EAPI=8
 DESCRIPTION="stuffs for system.img"
 
 SLOT="0"
-KEYWORDS="amd64"
-IUSE="baremetal +btrfs +xfs"
+KEYWORDS="amd64 arm64 riscv"
+IUSE="baremetal"
 
 RDEPEND="
+	genpack/base
 	!genpack/paravirt
-	sys-kernel/genpack-kernel
-	sys-apps/genpack-init
 	genpack/genpack-install
 	baremetal? ( 
 		sys-kernel/linux-firmware
@@ -28,8 +27,6 @@ RDEPEND="
 		app-misc/beep
 		sys-apps/memtest86+
 	)
-	btrfs? ( sys-fs/btrfs-progs )
-	xfs? ( sys-fs/xfsprogs )
 "
 
 S="${WORKDIR}"
