@@ -12,6 +12,7 @@ IUSE=""
 
 RDEPEND="
     app-admin/wb
+    dev-libs/weston[systemd,kiosk]
     dev-python/wheel
     gui-libs/gtk[wayland,introspection]
     dev-util/wayland-scanner
