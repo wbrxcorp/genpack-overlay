@@ -17,6 +17,9 @@ RDEPEND="
     dev-util/wayland-scanner
     dev-python/pygobject
     dev-python/python-pam
+    media-fonts/vlgothic
+    media-fonts/noto-emoji
+    virtual/freedesktop-icon-theme
 "
 
 pkg_setup() {
@@ -33,5 +36,9 @@ src_install() {
 
     insinto "/etc/pam.d"
     newins "${FILESDIR}/pam-wbui" "wbui"
+
+    insinto "/usr/lib/systemd/system"
+    doins "${FILESDIR}/display-manager.service"
+    doins "${FILESDIR}/wbui.service"
 }
 
