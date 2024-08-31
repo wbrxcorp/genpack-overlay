@@ -31,5 +31,21 @@ src_compile() {
 
 src_install() {
     emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
+
+    insinto "/etc/pam.d"
+    newins "${FILESDIR}/pam-wbui" "wbui"
+
+    # systemd service
+    insinto /usr/lib/systemd/system
+    doins "${FILESDIR}/scan-volumes.service"
+
+    # script for genpack-init
+    exeinto /usr/lib/genpack-init
+    doexe "${FILESDIR}/default_volume.py"
+    doexe "${FILESDIR}/generate_privkey.py"
+
+	# script for genpack
+	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
+    doexe "${FILESDIR}/enable-services.sh"
 }
 

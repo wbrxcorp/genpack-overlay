@@ -1,0 +1,14 @@
+[Unit]
+Description=Virtual Machine for %i
+Requires=scan-volumes.service
+After=scan-volumes.service network-online.target
+ConditionDirectoryNotEmpty=/var/vm/%i
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/vm service --bridge=br0 /var/vm/%i
+KillMode=mixed
+TimeoutStopSec=180
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Status notification
+After=wg-quick@wg-walbrix.service ldconfig.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/wb wg notify /%H/start?version=%A
+ExecStop=/usr/bin/wb wg notify /%H/stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -15,6 +15,7 @@ DEPEND="
 "
 
 RDEPEND="
+    app-emulation/qemu
     dev-libs/iniparser sys-apps/systemd sys-apps/util-linux sys-fs/squashfuse[lz4,lzma,lzo,zlib,zstd]
 "
 
@@ -29,5 +30,13 @@ src_compile() {
 
 src_install() {
     emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
+
+    # systemd service
+    insinto /usr/lib/systemd/system
+    newins "${FILESDIR}/vm.service" "vm@.service"
+
+	# script for genpack
+	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
+    doexe "${FILESDIR}/bridge-conf.sh"
 }
 
