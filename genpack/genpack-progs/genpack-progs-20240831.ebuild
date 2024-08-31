@@ -1,5 +1,5 @@
 EAPI=8
-inherit git-r3
+inherit git-r3 genpack-ignore
 
 DESCRIPTION="Support tools for genpack"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-progs"
