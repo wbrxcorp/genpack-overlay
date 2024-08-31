@@ -37,7 +37,6 @@ RDEPEND="
     cron? ( sys-process/cronie )
     audit? ( sys-process/audit )
     logrotate? ( app-admin/logrotate )
-    banner? ( genpack/banner )
 "
 
 S="${WORKDIR}"
@@ -52,6 +51,7 @@ src_install() {
     use cron && doexe "${FILESDIR}/cron.sh"
     use audit && doexe "${FILESDIR}/audit.sh"
     use sshd && doexe "${FILESDIR}/sshd.sh"
+    use banner && doexe "${FILESDIR}/generate-default-banner.sh"
 
     exeinto /usr/lib/genpack-init
     use banner && doexe "${FILESDIR}/01banner.py"
