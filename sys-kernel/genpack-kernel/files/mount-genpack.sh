@@ -63,7 +63,17 @@ if ! ismounted /run/initramfs/rw; then
 	mount -t tmpfs tmpfs /run/initramfs/rw || die "Failed to mount tmpfs as data partition"
 fi
 
-[ -e /run/initramfs/rw/root ] || mkdir -m 0755 -p /run/initramfs/rw/root
-[ -e /run/initramfs/rw/work ] || mkdir -m 0755 -p /run/initramfs/rw/work
+GENPACK_OVERLAY_ROOT="/run/initramfs/rw/root"
+GENPACK_OVERLAY_WORK="/run/initramfs/rw/work"
 
-mount -t overlay overlay -o lowerdir=/run/initramfs/ro,upperdir=/run/initramfs/rw/root,workdir=/run/initramfs/rw/work $NEWROOT || die "Failed to mount overlay root"
+# if old structure found, mount it instead
+if [ -d /run/initramfs/rw/rw/root ]; then
+	info "Old structure found.  Mounting it instead"
+	GENPACK_OVERLAY_ROOT="/run/initramfs/rw/rw/root"
+	GENPACK_OVERLAY_WORK="/run/initramfs/rw/rw/work"
+fi
+
+[ -e "$GENPACK_OVERLAY_ROOT" ] || mkdir -m 0755 -p $GENPACK_OVERLAY_ROOT
+[ -e "$GENPACK_OVERLAY_WORK" ] || mkdir -m 0755 -p $GENPACK_OVERLAY_WORK
+
+mount -t overlay overlay -o lowerdir=/run/initramfs/ro,upperdir=$GENPACK_OVERLAY_ROOT,workdir=$GENPACK_OVERLAY_WORK $NEWROOT || die "Failed to mount overlay root"
