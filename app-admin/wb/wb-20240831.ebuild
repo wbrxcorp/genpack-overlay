@@ -38,6 +38,7 @@ src_install() {
     # systemd service
     insinto /usr/lib/systemd/system
     doins "${FILESDIR}/scan-volumes.service"
+    doins "${FILESDIR}/notify-status.service"
 
     # script for genpack-init
     exeinto /usr/lib/genpack-init
