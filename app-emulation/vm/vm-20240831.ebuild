@@ -15,7 +15,7 @@ DEPEND="
 "
 
 RDEPEND="
-    app-emulation/qemu
+    app-emulation/qemu app-emulation/virtiofsd
     dev-libs/iniparser sys-apps/systemd sys-apps/util-linux sys-fs/squashfuse[lz4,lzma,lzo,zlib,zstd]
 "
 
