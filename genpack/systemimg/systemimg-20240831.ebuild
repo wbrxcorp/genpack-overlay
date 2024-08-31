@@ -23,6 +23,7 @@ RDEPEND="
 		sys-apps/usb_modeswitch
 		sys-power/cpupower
 		sys-apps/smartmontools
+		sys-apps/hdparm
 		sys-apps/ethtool
 		app-misc/beep
 		sys-apps/memtest86+
