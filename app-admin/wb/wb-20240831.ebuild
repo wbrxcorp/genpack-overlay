@@ -32,9 +32,6 @@ src_compile() {
 src_install() {
     emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
 
-    insinto "/etc/pam.d"
-    newins "${FILESDIR}/pam-wbui" "wbui"
-
     # systemd service
     insinto /usr/lib/systemd/system
     doins "${FILESDIR}/scan-volumes.service"
