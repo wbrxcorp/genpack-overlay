@@ -1,5 +1,7 @@
 EAPI=8
 
+inherit genpack-ignore
+
 DESCRIPTION="kernel and initramfs config for genpack images"
 
 SLOT="0"
