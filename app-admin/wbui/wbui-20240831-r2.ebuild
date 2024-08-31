@@ -38,6 +38,9 @@ src_install() {
     insinto "/etc/pam.d"
     newins "${FILESDIR}/pam-wbui" "wbui"
 
+    exeinto "/usr/lib/genpack-init"
+    doexe "${FILESDIR}/installer.py"
+
     insinto "/usr/lib/systemd/system"
     doins "${FILESDIR}/display-manager.service"
     doins "${FILESDIR}/wbui.service"
