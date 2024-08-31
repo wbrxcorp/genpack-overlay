@@ -5,7 +5,7 @@ DESCRIPTION="base system"
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
 
-IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump"
+IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner"
 
 REQUIRED_USE="
     logrotate? ( cron )
@@ -37,24 +37,22 @@ RDEPEND="
     cron? ( sys-process/cronie )
     audit? ( sys-process/audit )
     logrotate? ( app-admin/logrotate )
+    banner? ( genpack/banner )
 "
 
 S="${WORKDIR}"
 
 src_install() {
-	# script for genpack
+    # script for genpack
 
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
-	doexe "${FILESDIR}/kernel-install.py"
+    doexe "${FILESDIR}/kernel-install.py"
     doexe "${FILESDIR}/copyup-fundamentals.sh"
 
-    if use cron; then
-        doexe "${FILESDIR}/cron.sh"
-    fi
-    if use audit; then
-        doexe "${FILESDIR}/audit.sh"
-    fi
-    if use sshd; then
-        doexe "${FILESDIR}/sshd.sh"
-    fi
+    use cron && doexe "${FILESDIR}/cron.sh"
+    use audit && doexe "${FILESDIR}/audit.sh"
+    use sshd && doexe "${FILESDIR}/sshd.sh"
+
+    exeinto /usr/lib/genpack-init
+    use banner && doexe "${FILESDIR}/01banner.py"
 }
