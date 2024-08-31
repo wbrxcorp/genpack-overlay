@@ -18,7 +18,7 @@ S="${WORKDIR}"
 
 src_install() {
 	# script for genpack
-	exeinto /usr/lib/genpack/package-scripts
+	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
 	doexe "${FILESDIR}/paravirt.sh"
     doexe "${FILESDIR}/qemu-guest-agent.sh"
 }

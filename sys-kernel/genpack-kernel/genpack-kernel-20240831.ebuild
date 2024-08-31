@@ -28,8 +28,5 @@ src_install() {
 	dodir /usr/lib/dracut/dracut.conf.d
 	echo 'omit_dracutmodules+=" systemd "' > "${D}/usr/lib/dracut/dracut.conf.d/no-systemd.conf"
 	echo 'add_dracutmodules+=" genpack "' > "${D}/usr/lib/dracut/dracut.conf.d/genpack.conf"
-
-	exeinto /usr/lib/genpack/package-scripts
-	doexe "${FILESDIR}/kernel-install.py"
 }
 

@@ -43,6 +43,6 @@ src_install() {
 	# script for genpack
 	insinto /usr/lib/genpack/systemimg
 	doins "${FILESDIR}/grub.cfg"
-	exeinto /usr/lib/genpack/package-scripts
+	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
 	doexe "${FILESDIR}/systemimg.sh"
 }
