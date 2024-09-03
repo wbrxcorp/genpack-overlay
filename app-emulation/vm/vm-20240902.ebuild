@@ -34,6 +34,7 @@ src_install() {
     # systemd service
     insinto /usr/lib/systemd/system
     newins "${FILESDIR}/vm.service" "vm@.service"
+    newins "${FILESDIR}/mirrortap.service" "mirrortap@.service"
 
 	# script for genpack
 	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}

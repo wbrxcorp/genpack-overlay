@@ -1,0 +1,12 @@
+[Unit]
+Description=Mirror traffic from:to %i
+After=network.target
+Before=vm@.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mirrortap %i
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
