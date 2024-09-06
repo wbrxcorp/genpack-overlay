@@ -53,6 +53,9 @@ src_install() {
     use sshd && doexe "${FILESDIR}/sshd.sh"
     use banner && doexe "${FILESDIR}/generate-default-banner.sh"
 
-    exeinto /usr/lib/genpack-init
-    use banner && doexe "${FILESDIR}/01banner.py"
+    exeinto /usr/bin
+    newexe "${FILESDIR}/glsa-check.py" genpack-glsa-check
+
+    insinto /usr/lib/genpack-init
+    use banner && doins "${FILESDIR}/01banner.py"
 }
