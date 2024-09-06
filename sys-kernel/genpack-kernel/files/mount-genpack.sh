@@ -9,10 +9,9 @@ if [ "${root%%:*}" = "systemimg" ]; then
 	info "Boot partition UUID=$UUID"
 
 	SYSTEMIMG_BOOT_PARTITION="$(label_uuid_to_dev UUID=$UUID)"
-	DATA_PARTITION="$(label_uuid_to_dev LABEL=data-$UUID)"
 
 	if [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ]; then
-		timeout=$(getargnum 5 1 180 rd.timeout)
+		timeout=$(getargnum 15 1 180 rd.timeout)
 		info "Waiting for boot partition to be recognized by system(max $timeout sec)..."
 		sleep 1
 		while [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ] && [ "$timeout" -gt 0 ]; do
@@ -20,9 +19,11 @@ if [ "${root%%:*}" = "systemimg" ]; then
 			timeout=$((timeout - 1))
 		done
 		if [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ]; then
-			info "Timeout. assuming that /dev/sda1 is a boot partition and /dev/sda2 is a data partition"
-			SYSTEMIMG_BOOT_PARTITION="/dev/sda1"
-			DATA_PARTITION="/dev/sda2"
+			info "Timeout.  Trying to find boot partition by TYPE=vfat"
+			SYSTEMIMG_BOOT_PARTITION=$(blkid -t TYPE=vfat -o device | head -1)
+			if [ ! -b "$SYSTEMIMG_BOOT_PARTITION" ]; then
+				die "Failed to find boot partition"
+			fi
 		fi
 	fi
 
@@ -40,6 +41,16 @@ if [ "${root%%:*}" = "systemimg" ]; then
 		mount -t auto -o ro "$SYSTEMIMG_BOOT_PARTITION" /run/initramfs/boot || die "Failed to mount boot partition(readonly)"
 	fi
 	GENPACK_IMAGE="/run/initramfs/boot/system.img"
+
+	for i in "data-" "d-" "wbdata-"; do
+		DATA_PARTITION="$(label_uuid_to_dev LABEL=$i$UUID)"
+		[ -b "$DATA_PARTITION" ] && break
+	done
+	if [ ! -b "$DATA_PARTITION" ]; then
+		[ -L "$SYSTEMIMG_BOOT_PARTITION" ] && SYSTEMIMG_BOOT_PARTITION=$(blkid -U $UUID)
+		# replace last "1" with "2"
+		DATA_PARTITION="${SYSTEMIMG_BOOT_PARTITION%?}2"
+	fi
 elif [ "${root%%:*}" = "block" ]; then
 	GENPACK_IMAGE="/dev/vda"
 	DATA_PARTITION="/dev/vdb"
