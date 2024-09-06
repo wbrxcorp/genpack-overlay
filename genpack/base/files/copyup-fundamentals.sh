@@ -8,4 +8,9 @@ recursive-touch /usr/bin/sh /usr/bin/sed /usr/bin/awk /usr/bin/python /bin/nano 
         /usr/bin/make /usr/bin/diff /usr/bin/patch /usr/bin/strings /usr/bin/strace \
         /usr/bin/find /usr/bin/xargs /usr/bin/less \
         /usr/bin/locale-gen
-recursive-touch /usr/lib/python*/site-packages/portage/versions.py
+
+for i in versions.py __init__.py installation.py const.py eapi.py exception.py localization.py; do
+	recursive-touch /usr/lib/python*/site-packages/portage/$i
+done
+
+recursive-touch /usr/lib/python*/site-packages/portage/proxy/*.py

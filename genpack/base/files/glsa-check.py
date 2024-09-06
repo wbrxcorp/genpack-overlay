@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -B
 
 import os,argparse,re,glob
 import xml.etree.ElementTree as ET
@@ -100,7 +100,7 @@ def main(packages_file, glsa_dir):
 
 if __name__ == '__main__':
     # mkdir -p /var/db/repos/gentoo
-    # curl http://ftp.iij.ad.jp/pub/linux/gentoo/snapshots/portage-latest.tar.xz| tar Jxvf - portage/metadata/glsa -C /var/db/repos/gentoo --strip-components=1
+    # curl http://ftp.iij.ad.jp/pub/linux/gentoo/snapshots/portage-latest.tar.xz| tar Jxf - -C /var/db/repos/gentoo portage/metadata/glsa --strip-components=1
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='GLSA Check')
     parser.add_argument('--packages-file', default="/.genpack/packages")
