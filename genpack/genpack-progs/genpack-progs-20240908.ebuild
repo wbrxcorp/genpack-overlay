@@ -14,6 +14,7 @@ RDEPEND="
     sys-apps/util-linux app-portage/gentoolkit dev-util/pkgdev app-arch/zip dev-debug/strace
     net-analyzer/tcpdump app-editors/vim net-misc/netkit-telnetd
     app-misc/figlet
+    app-admin/eclean-kernel
 "
 
 pkg_setup() {
@@ -29,5 +30,8 @@ src_install() {
     emake DESTDIR="${D}" install || die "emake install failed"
     # genpack-install is moved to separate package
     rm -f "${D}/usr/bin/genpack-install"
+
+    exeinto "/usr/bin"
+    newexe "${FILESDIR}/copyup-packages.py" copyup-packages
 }
 
