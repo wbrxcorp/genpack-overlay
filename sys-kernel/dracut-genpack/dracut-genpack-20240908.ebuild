@@ -6,13 +6,10 @@ DESCRIPTION="Dracut modules for genpack initramfs"
 
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
-IUSE="+binary transient"
+IUSE="transient"
 
 RDEPEND="
-	binary? ( sys-kernel/gentoo-kernel-bin[initramfs] )
-	!binary? ( sys-kernel/gentoo-kernel[initramfs] )
 	sys-kernel/dracut
-	app-admin/eclean-kernel
 	sys-fs/dosfstools
 "
 
