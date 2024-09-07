@@ -40,9 +40,6 @@ def main():
     if not os.path.exists("/boot/initramfs") and initramfs is not None:
         os.symlink(initramfs, "/boot/initramfs")
 
-    os.path.exists("/boot/kernel") and subprocess.check_call(["recursive-touch", "/boot/kernel"])
-    os.path.exists("/boot/initramfs") and subprocess.check_call(["recursive-touch", "/boot/initramfs"])
-
 def test():
     kernel, initramfs = detect_kernel_and_initramfs()
     print(kernel, initramfs)

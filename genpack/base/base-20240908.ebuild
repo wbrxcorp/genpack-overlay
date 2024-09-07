@@ -12,7 +12,8 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-    sys-kernel/genpack-kernel
+    || ( sys-kernel/gentoo-kernel[initramfs] sys-kernel/gentoo-kernel-bin[initramfs] )
+    sys-kernel/dracut-genpack
     sys-apps/genpack-init
     sys-apps/gentoo-systemd-integration
     sys-libs/timezone-data
@@ -52,6 +53,9 @@ src_install() {
     use audit && doexe "${FILESDIR}/audit.sh"
     use sshd && doexe "${FILESDIR}/sshd.sh"
     use banner && doexe "${FILESDIR}/generate-default-banner.sh"
+
+    exeinto /usr/lib/genpack/package-scripts/sys-apps/systemd
+    doexe "${FILESDIR}/systemd.sh"
 
     exeinto /usr/bin
     newexe "${FILESDIR}/glsa-check.py" genpack-glsa-check

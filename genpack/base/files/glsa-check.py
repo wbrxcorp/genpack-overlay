@@ -7,7 +7,16 @@ import portage.versions # /usr/lib/python*/site-packages/portage/versions.py
 
 def parse_package_line(line):
     #print(line)
-    category, package_and_version_and_revision = line.split('/')
+    category, package_and_version_and_revision_and_slot = line.split('/')
+
+    slotpos = re.search(r'\[.*\]$', package_and_version_and_revision_and_slot)
+    if slotpos:
+        slot = package_and_version_and_revision_and_slot[slotpos.start() + 1:slotpos.end() - 1]
+        package_and_version_and_revision = package_and_version_and_revision_and_slot[:slotpos.start()]
+    else:
+        slot = None
+        package_and_version_and_revision = package_and_version_and_revision_and_slot
+
     revpos = re.search('-r\\d+$', package_and_version_and_revision)
     if revpos:
         revision = int(package_and_version_and_revision[revpos.start() + 2:])
@@ -19,7 +28,7 @@ def parse_package_line(line):
     #print(package_and_version)
     package, version = package_and_version.rsplit('-', 1)
 
-    return [category, package, version, revision]
+    return [category, package, version, revision, slot]
 
 def split_revision(line):
     revpos = re.search('-r\\d+$', line)
@@ -73,7 +82,7 @@ def main(packages_file, glsa_dir):
             package = line.strip()
             if package.startswith('#') or package == "": continue
             if package.startswith('@') or package.startswith("virtual/"): continue
-            category, package_name, version, revision = parse_package_line(package)
+            category, package_name, version, revision, slot = parse_package_line(package)
             installed_packages[category + "/" + package_name] = [version + ("-r" + str(revision) if revision else ""), None] # slot is not known
     #for package in packages:
     #    print(package)

@@ -9,6 +9,19 @@ recursive-touch /usr/bin/sh /usr/bin/sed /usr/bin/awk /usr/bin/python /bin/nano 
         /usr/bin/find /usr/bin/xargs /usr/bin/less \
         /usr/bin/locale-gen
 
+# remove root password
+sed -i 's/^root:\*:/root::/' /etc/shadow
+
+# default iptables rules
+touch /var/lib/iptables/rules-save /var/lib/ip6tables/rules-save
+
+# set locale conf to pam env
+sed -i 'r"s/^export LANG=\(.*\)$/#export LANG=\1 # apply \/etc\/locale.conf instead/' /etc/profile.env
+sed -i 'r"/^session\t\+required\t\+pam_env\.so envfile=\/etc\/profile\.env$/a session\t\trequired\tpam_env.so envfile=\/etc\/locale.conf' /etc/pam.d/system-login
+
+# copyup gcc libraries
+touch -ha `gcc --print-file-name=`/*.so.* && ldconfig
+
 for i in versions.py __init__.py installation.py const.py eapi.py exception.py localization.py; do
 	recursive-touch /usr/lib/python*/site-packages/portage/$i
 done

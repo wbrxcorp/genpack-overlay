@@ -2,7 +2,7 @@ EAPI=8
 
 inherit genpack-ignore
 
-DESCRIPTION="kernel and initramfs config for genpack images"
+DESCRIPTION="Dracut modules for genpack initramfs"
 
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
