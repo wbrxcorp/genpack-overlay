@@ -54,8 +54,10 @@ src_install() {
     use sshd && doexe "${FILESDIR}/sshd.sh"
     use banner && doexe "${FILESDIR}/generate-default-banner.sh"
 
+    exeinto /usr/lib/genpack/package-scripts/net-firewall/iptables
+    doexe "${FILESDIR}/iptables-set-legacy.sh"
+
     exeinto /usr/lib/genpack/package-scripts/sys-apps/systemd
-    doexe "${FILESDIR}/systemd.sh"
 
     exeinto /usr/bin
     newexe "${FILESDIR}/glsa-check.py" genpack-glsa-check
