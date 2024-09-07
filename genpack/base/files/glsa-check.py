@@ -7,7 +7,7 @@ import portage.versions # /usr/lib/python*/site-packages/portage/versions.py
 
 def parse_package_line(line):
     #print(line)
-    category, package_and_version_and_revision_and_slot = line.split('/')
+    category, package_and_version_and_revision_and_slot = line.split('/', 1)
 
     slotpos = re.search(r'\[.*\]$', package_and_version_and_revision_and_slot)
     if slotpos:
