@@ -114,7 +114,8 @@ def touch(file):
     os.utime(file, (time.time(), os.lstat(file).st_mtime), follow_symlinks=False)
 
 def is_path_excluded(path, devel = False):
-    exclude_patterns = ["/run/","/var/run/","/var/lock/","/var/cache/","/usr/src/linux", "/usr/lib/genpack/"]
+    exclude_patterns = ["/run/","/var/run/","/var/lock/","/var/cache/"]
+    exclude_patterns += ["/usr/src/linux", "/usr/lib/dracut/", "/usr/lib/genpack/"]
     if not devel: exclude_patterns += ["/usr/share/man/","/usr/share/doc/","/usr/share/gtk-doc/","/usr/share/info/",
         "/usr/include/",re.compile(r'^/usr/lib/python[0-9\.]+?/test/'),re.compile(r'\.a$')]
     for expr in exclude_patterns:
