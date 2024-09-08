@@ -5,7 +5,7 @@ DESCRIPTION="base system"
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
 
-IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner"
+IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner +install-cloudflared"
 
 REQUIRED_USE="
     logrotate? ( cron )
@@ -65,4 +65,7 @@ src_install() {
 
     insinto /usr/lib/genpack-init
     use banner && doins "${FILESDIR}/01banner.py"
+
+    exeinto /usr/bin
+    use install-cloudflared && newexe "${FILESDIR}/install-cloudflared.sh" install-cloudflared
 }
