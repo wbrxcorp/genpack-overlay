@@ -12,7 +12,7 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-    || ( sys-kernel/gentoo-kernel[initramfs] sys-kernel/gentoo-kernel-bin[initramfs] )
+    || ( sys-kernel/gentoo-kernel-bin[initramfs] sys-kernel/gentoo-kernel[initramfs] )
     sys-kernel/dracut-genpack
     sys-apps/genpack-init
     sys-apps/gentoo-systemd-integration
