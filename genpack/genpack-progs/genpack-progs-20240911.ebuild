@@ -33,5 +33,6 @@ src_install() {
 
     exeinto "/usr/bin"
     newexe "${FILESDIR}/copyup-packages.py" copyup-packages
+    newexe "${FILESDIR}/genpack-prepare.sh" genpack-prepare
 }
 
