@@ -14,8 +14,7 @@ src_compile() {
     mkdir -p "${T}/build" || die "mkdir failed"
     mv "${S}/slack" "${S}/slack_sdk" "${T}/build/" || die "mv failed"
     cp "${FILESDIR}/slack-send-message.py" "${T}/build/__main__.py" || die "cp failed"
-    python -m zipapp "${T}/build" -o "${T}/slack-send-message.pyz" || die "zipapp failed"
-    echo '#!/usr/bin/env python3' | cat - "${T}/slack-send-message.pyz" > "${T}/slack-send-message"
+    python -m zipapp "${T}/build" -p '/usr/bin/python3' -o "${T}/slack-send-message" || die "zipapp failed"
 }
 
 src_install() {
