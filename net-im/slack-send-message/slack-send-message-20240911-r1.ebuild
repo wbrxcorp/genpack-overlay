@@ -21,4 +21,8 @@ src_compile() {
 src_install() {
     exeinto "/usr/bin"
     doexe "${T}/slack-send-message"
+
+    dodir "/etc/slack"
+    echo "xoxb-YOUR-BOT-TOKEN-HERE" > "${ED}/etc/slack/bot-token"
+    chmod 600 "${ED}/etc/slack/bot-token"
 }
