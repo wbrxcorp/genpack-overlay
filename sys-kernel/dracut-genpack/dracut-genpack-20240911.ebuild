@@ -25,7 +25,7 @@ src_install() {
 	doexe "${T}/mount-genpack.sh"
 
 	dodir /usr/lib/dracut/dracut.conf.d
-	echo 'omit_dracutmodules+=" systemd "' > "${D}/usr/lib/dracut/dracut.conf.d/no-systemd.conf"
+	echo 'omit_dracutmodules+=" systemd i18n "' > "${D}/usr/lib/dracut/dracut.conf.d/no-for-genpack.conf"
 	echo 'add_dracutmodules+=" genpack "' > "${D}/usr/lib/dracut/dracut.conf.d/genpack.conf"
 }
 
