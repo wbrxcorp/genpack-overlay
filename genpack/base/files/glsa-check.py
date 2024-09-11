@@ -84,8 +84,8 @@ def main(packages_file, glsa_dir):
             if package.startswith('@') or package.startswith("virtual/"): continue
             category, package_name, version, revision, slot = parse_package_line(package)
             installed_packages[category + "/" + package_name] = [version + ("-r" + str(revision) if revision else ""), None] # slot is not known
-    #for package in packages:
-    #    print(package)
+
+    vulnerability_found = False
 
     # read all GLSAs under portage_dir/metadata/glsa
     for glsa_file in sorted(glob.glob("*.xml", root_dir=glsa_dir)):
@@ -106,6 +106,8 @@ def main(packages_file, glsa_dir):
                 version, slot = installed_packages[package_name]
                 if is_package_affected(version, slot, unvs):
                     print("%s-%s is affected by https://security.gentoo.org/glsa/%s" % (package_name, version, glsa_id))
+                    vulnerability_found = True
+    return 1 if vulnerability_found else 0
 
 if __name__ == '__main__':
     # mkdir -p /var/db/repos/gentoo
@@ -116,4 +118,5 @@ if __name__ == '__main__':
     parser.add_argument('--glsa-dir', default="/var/db/repos/gentoo/metadata/glsa")
     args = parser.parse_args()
 
-    main(args.packages_file, args.glsa_dir)
+    rst = main(args.packages_file, args.glsa_dir)
+    exit(rst)
