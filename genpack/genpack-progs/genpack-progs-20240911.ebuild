@@ -12,7 +12,7 @@ IUSE=""
 
 RDEPEND="
     sys-apps/util-linux app-portage/gentoolkit dev-util/pkgdev app-arch/zip dev-debug/strace
-    net-analyzer/tcpdump app-editors/vim net-misc/netkit-telnetd
+    net-analyzer/tcpdump app-editors/nano app-editors/vim net-misc/netkit-telnetd
     app-misc/figlet
     app-admin/eclean-kernel
 "
