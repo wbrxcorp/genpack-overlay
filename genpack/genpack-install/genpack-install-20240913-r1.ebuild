@@ -7,7 +7,7 @@ EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-install.git"
 EGIT_COMMIT="c6839135ef655021fdd28636db8fc590fe11aec3"
 
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 arm64 riscv"
 
 DEPEND="dev-cpp/argparse"
 RDEPEND="
