@@ -15,7 +15,7 @@ RDEPEND="
 		sys-fs/lsscsi
 		sys-apps/lshw
 		sys-apps/hwloc
-		sys-apps/msr-tools
+		amd64? ( sys-apps/msr-tools )
 		sys-apps/usbutils
 		sys-apps/pciutils
 		sys-apps/dmidecode
