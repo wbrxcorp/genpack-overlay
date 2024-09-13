@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="system.img installer"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-install"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-install.git"
-EGIT_COMMIT="0859012efb5ae7ca1a76ba744b8981593689145f"
+EGIT_COMMIT="c6839135ef655021fdd28636db8fc590fe11aec3"
 
 SLOT="0"
 KEYWORDS="amd64"
@@ -17,6 +17,8 @@ RDEPEND="
 	sys-fs/mtools
 	dev-libs/libisoburn
 	sys-apps/kbd
+	sys-fs/btrfs-progs
+	app-arch/unzip
 "
 
 src_compile() {
@@ -24,6 +26,6 @@ src_compile() {
 }
 
 src_install() {
-    emake DESTDIR="${D}" install || die "emake install failed"
+    emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
 }
 
