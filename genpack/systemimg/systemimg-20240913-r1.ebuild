@@ -15,7 +15,6 @@ RDEPEND="
 		sys-fs/lsscsi
 		sys-apps/lshw
 		sys-apps/hwloc
-		amd64? ( sys-apps/msr-tools )
 		sys-apps/usbutils
 		sys-apps/pciutils
 		sys-apps/dmidecode
@@ -25,8 +24,11 @@ RDEPEND="
 		sys-apps/smartmontools
 		sys-apps/hdparm
 		sys-apps/ethtool
-		app-misc/beep
 		sys-apps/memtest86+
+		amd64? ( 
+			app-misc/beep
+			sys-apps/msr-tools 
+		)
 	)
 "
 
