@@ -24,10 +24,10 @@ RDEPEND="
 		sys-apps/smartmontools
 		sys-apps/hdparm
 		sys-apps/ethtool
-		sys-apps/memtest86+
 		amd64? ( 
 			app-misc/beep
 			sys-apps/msr-tools 
+			sys-apps/memtest86+
 		)
 	)
 "
