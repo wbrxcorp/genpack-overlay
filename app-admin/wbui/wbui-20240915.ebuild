@@ -4,6 +4,7 @@ inherit git-r3
 DESCRIPTION="Walbrix admin UI"
 HOMEPAGE="https://github.com/wbrxcorp/wbui"
 EGIT_REPO_URI="https://github.com/wbrxcorp/wbui.git"
+EGIT_COMMIT="333942a173f8501c26d28a01cb9b6d2f9e8563da"
 
 LICENSE="MIT"
 SLOT="0"
@@ -22,15 +23,6 @@ RDEPEND="
     media-fonts/noto-emoji
     virtual/freedesktop-icon-theme
 "
-
-pkg_setup() {
-    export EGIT_COMMIT_DATE="$(echo ${PV} | sed 's/\(....\)\(..\)\(..\)/\1-\2-\3/')"
-    einfo "EGIT_COMMIT_DATE set to ${EGIT_COMMIT_DATE}"
-}
-
-src_compile() {
-    emake || die "emake failed"
-}
 
 src_install() {
     emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
