@@ -4,6 +4,7 @@ inherit git-r3
 DESCRIPTION="Walbrix admin command"
 HOMEPAGE="https://github.com/wbrxcorp/wb"
 EGIT_REPO_URI="https://github.com/wbrxcorp/wb.git"
+EGIT_COMMIT="3ccbdc4bf0d1729a0020117ed3d6b2c398d4b600"
 
 LICENSE="MIT"
 SLOT="0"
@@ -19,15 +20,6 @@ RDEPEND="
     net-misc/curl dev-libs/openssl media-gfx/qrencode dev-libs/wayland
     app-emulation/vm
 "
-
-pkg_setup() {
-    export EGIT_COMMIT_DATE="$(echo ${PV} | sed 's/\(....\)\(..\)\(..\)/\1-\2-\3/')"
-    einfo "EGIT_COMMIT_DATE set to ${EGIT_COMMIT_DATE}"
-}
-
-src_compile() {
-    emake || die "emake failed"
-}
 
 src_install() {
     emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
