@@ -1,6 +1,26 @@
 #!/usr/bin/python
 import os,glob,subprocess,re
 
+def decompress_kernel_if_necessary(kernel):
+    # decompress kernel if compressed by CONFIG_EFI_ZBOOT
+    kernel_bin = None
+    with open(kernel, "rb") as f:
+        kernel_bin = f.read()
+        if len(kernel_bin) < 32 or kernel_bin[0:8] != b"MZ\x00\x00zimg" or kernel_bin[24:28] != b"gzip": return False
+    #else
+    gzip_offset = kernel_bin.find(b"\x1f\x8b\x08\x00\x00\x00\x00\x00")
+    if gzip_offset < 0:
+        print("Kernel compressed but gzip header not found: %s" % kernel)
+        return False
+    #else
+    print("Decompressing compressed kernel %s..." % kernel)
+    decompressed_kernel = kernel + ".decompressed"
+    with open(decompressed_kernel, "wb") as f:
+        subprocess.Popen(["gunzip", "-c"], stdin=subprocess.PIPE, stdout=f).communicate(input=kernel_bin[gzip_offset:])
+    os.rename(decompressed_kernel, kernel)
+
+    return True
+
 def detect_kernel_and_initramfs():
     kernel = None
     initramfs = None
@@ -35,8 +55,10 @@ def main():
     subprocess.check_call(["emerge", "--config", "=" + kernel_package])
 
     kernel, initramfs = detect_kernel_and_initramfs()
-    if not os.path.exists("/boot/kernel") and kernel is not None:
-        os.symlink(kernel, "/boot/kernel")
+    if kernel is not None:
+        decompress_kernel_if_necessary(os.path.join("/boot", kernel))
+        if not os.path.exists("/boot/kernel"):
+            os.symlink(kernel, "/boot/kernel")
     if not os.path.exists("/boot/initramfs") and initramfs is not None:
         os.symlink(initramfs, "/boot/initramfs")
 
