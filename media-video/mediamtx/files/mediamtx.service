@@ -1,0 +1,6 @@
+[Unit]
+Wants=network.target
+[Service]
+ExecStart=/usr/bin/mediamtx
+[Install]
+WantedBy=multi-user.target
