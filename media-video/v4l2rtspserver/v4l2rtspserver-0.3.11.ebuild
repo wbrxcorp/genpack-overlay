@@ -29,7 +29,6 @@ SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
 IUSE=""
 
-DEPEND="app-arch/dpkg"
 RDEPEND="dev-libs/openssl-compat"
 
 QA_PREBUILT="*"
