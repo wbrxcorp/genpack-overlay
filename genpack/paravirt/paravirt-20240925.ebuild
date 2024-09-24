@@ -22,4 +22,7 @@ src_install() {
 	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
 	doexe "${FILESDIR}/paravirt.sh"
     doexe "${FILESDIR}/qemu-guest-agent.sh"
+
+    insinto /usr/lib/genpack-init
+    doins "${FILESDIR}/swapfile.py"
 }
