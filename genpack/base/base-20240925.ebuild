@@ -60,6 +60,16 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/net-firewall/iptables
     doexe "${FILESDIR}/iptables-set-legacy.sh"
 
+    insinto /usr/lib/genpack
+    doins "${FILESDIR}/genpack-init-docker.py"
+    doins "${FILESDIR}/genpack-init-mysql.py"
+
+    exeinto /usr/lib/genpack/package-scripts/app-containers/docker
+    doexe "${FILESDIR}/docker.sh"
+
+    exeinto /usr/lib/genpack/package-scripts/dev-db/mysql
+    doexe "${FILESDIR}/mysql.sh"
+
     exeinto /usr/bin
     newexe "${FILESDIR}/glsa-check.py" genpack-glsa-check
 
