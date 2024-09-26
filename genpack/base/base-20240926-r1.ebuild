@@ -50,10 +50,6 @@ src_install() {
 
     exeinto /usr/lib/genpack/package-scripts/virtual/dist-kernel
     doexe "${FILESDIR}/kernel-install.py"
-
-    use cron && doexe "${FILESDIR}/cron.sh"
-    use audit && doexe "${FILESDIR}/audit.sh"
-    use sshd && doexe "${FILESDIR}/sshd.sh"
     use banner && doexe "${FILESDIR}/generate-default-banner.sh"
 
     exeinto /usr/lib/genpack/package-scripts/sys-apps/systemd
@@ -71,6 +67,19 @@ src_install() {
 
     exeinto /usr/lib/genpack/package-scripts/dev-db/mysql
     doexe "${FILESDIR}/mysql.sh"
+
+    if use cron; then
+        exeinto /usr/lib/genpack/package-scripts/sys-process/cronie
+        doexe "${FILESDIR}/cron.sh"
+    fi
+    if use audit; then
+        exeinto /usr/lib/genpack/package-scripts/sys-process/audit
+        doexe "${FILESDIR}/audit.sh"
+    fi
+    if use sshd; then
+        exeinto /usr/lib/genpack/package-scripts/net-misc/openssh
+        doexe "${FILESDIR}/sshd.sh"
+    fi
 
     exeinto /usr/bin
     newexe "${FILESDIR}/glsa-check.py" genpack-glsa-check
