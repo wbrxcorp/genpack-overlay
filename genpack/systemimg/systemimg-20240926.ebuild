@@ -48,4 +48,7 @@ src_install() {
 	doins "${FILESDIR}/grub.cfg"
 	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
 	doexe "${FILESDIR}/systemimg.sh"
+
+	exeinto /usr/lib/genpack/package-scripts/sys-kernel/raspberrypi-image
+	doexe "${FILESDIR}/raspberrypi-generate-initramfs.py"
 }
