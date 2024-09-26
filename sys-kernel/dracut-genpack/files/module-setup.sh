@@ -1,7 +1,7 @@
 #!/bin/bash
 
 check() {
-    require_kernel_modules virtiofs virtio_blk btrfs xfs squashfs loop overlay || return 1
+    require_kernel_modules btrfs xfs squashfs loop overlay || return 1
     return 255
 }
 
