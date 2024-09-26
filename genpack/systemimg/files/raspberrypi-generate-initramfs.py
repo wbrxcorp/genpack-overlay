@@ -29,5 +29,15 @@ def main():
         print("Generating initramfs image for armv8-16k kernel version: %s" % armv8_16k_kernel_ver)
         generate_initramfs(armv8_16k_kernel_ver, "/boot/initramfs_2712")
 
+    # append 'auto_initramfs=1' line to /boot/config.txt if not exists
+    with open("/boot/config.txt", "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            if line.strip() == "auto_initramfs=1":
+                return
+
+    with open("/boot/config.txt", "a") as f:
+        f.write("\nauto_initramfs=1\n")
+
 if __name__ == "__main__":
     main()
