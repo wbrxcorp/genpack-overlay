@@ -12,7 +12,7 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-    || ( sys-kernel/gentoo-kernel-bin[initramfs] sys-kernel/gentoo-kernel[initramfs] )
+    || ( sys-kernel/gentoo-kernel-bin[initramfs] sys-kernel/gentoo-kernel[initramfs] sys-kernel/raspberrypi-image )
     sys-kernel/dracut-genpack
     sys-apps/genpack-init
     sys-apps/gentoo-systemd-integration
@@ -46,8 +46,10 @@ src_install() {
     # script for genpack
 
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
-    doexe "${FILESDIR}/kernel-install.py"
     doexe "${FILESDIR}/copyup-fundamentals.sh"
+
+    exeinto /usr/lib/genpack/package-scripts/virtual/dist-kernel
+    doexe "${FILESDIR}/kernel-install.py"
 
     use cron && doexe "${FILESDIR}/cron.sh"
     use audit && doexe "${FILESDIR}/audit.sh"

@@ -6,7 +6,7 @@ SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
 
 RDEPEND="
-    arm64? ( sys-kernel/gentoo-kernel-bin[initramfs] )
+    arm64? ( || ( sys-kernel/gentoo-kernel-bin[initramfs] sys-kernel/raspberrypi-image ) )
     riscv? ( sys-kernel/gentoo-kernel[initramfs,savedconfig] )
     amd64? (
         sys-kernel/gentoo-kernel-bin[initramfs]
