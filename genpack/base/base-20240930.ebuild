@@ -68,6 +68,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/dev-db/mysql
     doexe "${FILESDIR}/mysql.sh"
 
+    exeinto /usr/lib/genpack/package-scripts/www-servers/apache
+    doexe "${FILESDIR}/apache.sh"
+
     if use cron; then
         exeinto /usr/lib/genpack/package-scripts/sys-process/cronie
         doexe "${FILESDIR}/cron.sh"
