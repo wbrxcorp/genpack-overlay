@@ -3,20 +3,12 @@ EAPI=8
 DESCRIPTION="Ready-to-use SRT / WebRTC / RTSP / RTMP / LL-HLS media server"
 HOMEPAGE="https://github.com/bluenviron/mediamtx"
 
-ARCH_DIST=""
-case ${ARCH} in
-    amd64)
-        ARCH_DIST="amd64"
-        ;;
-    arm64)
-        ARCH_DIST="arm64v8"
-        ;;
-    *)
-        die "Unsupported architecture: ${ARCH}"
-        ;;
-esac
+BASE_URI="https://github.com/bluenviron/mediamtx/releases/download/v${PV}/${PN}_v${PV}_linux_"
+SRC_URI="
+        amd64? ( ${BASE_URI}amd64.tar.gz )
+        arm64? ( ${BASE_URI}arm64v8.tar.gz )
+"
 
-SRC_URI="https://github.com/bluenviron/mediamtx/releases/download/v${PV}/${PN}_v${PV}_linux_${ARCH_DIST}.tar.gz"
 S="${WORKDIR}"
 
 LICENSE="MIT"
