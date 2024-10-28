@@ -7,13 +7,14 @@ Type=simple
 ExecStart=/usr/bin/motionplus -n -c /etc/motionplus/motionplus.conf
 StandardError=null
 ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=15s
 
 User=motion
 Group=motion
 
 UMask=007
 WorkingDirectory=-/var/lib/motionplus
-
 
 [Install]
 WantedBy=multi-user.target
