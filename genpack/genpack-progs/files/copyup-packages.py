@@ -13,18 +13,6 @@ path_prefix = "/"
 vt = vartree.vartree()
 api = vartree.vardbapi()
 
-def get_masked_packages() -> set:
-    masked_packages = set()
-    genpack_mask_file = "/etc/portage/genpack.mask"
-    if not os.path.isfile(genpack_mask_file): return masked_packages
-    with open(genpack_mask_file) as f:
-        for line in f:
-            line = re.sub(r'#.*', "", line).strip()
-            if line == "": continue
-            #else
-            masked_packages.add(line)
-    return masked_packages
-
 def get_package_set(set_name):
     pkgs = []
     with open(os.path.join("/etc/portage/sets", set_name)) as f:
@@ -58,7 +46,7 @@ def parse_depend(str):
 
     return pkgs
 
-def scan_pkg(pkgnames, masked_packages, pkgs = None, needed_by = None, optional = False):
+def scan_pkg(pkgnames, dep_removals, pkgs = None, needed_by = None, optional = False):
     if pkgs is None: pkgs = dict()
     for pkgname in pkgnames:
         if pkgname[0] == '@':
@@ -67,12 +55,12 @@ def scan_pkg(pkgnames, masked_packages, pkgs = None, needed_by = None, optional 
             if needed_by is not None:
                 if "NEEDED_BY" not in pkgs[pkgname]: pkgs[pkgname]["NEEDED_BY"] = []
                 pkgs[pkgname]["NEEDED_BY"].append(needed_by)
-            scan_pkg(get_package_set(pkgname[1:]), masked_packages, pkgs, pkgname)
+            scan_pkg(get_package_set(pkgname[1:]), dep_removals, pkgs, pkgname)
             continue
         #else
         bestmatch = vt.dep_bestmatch(pkgname)
         if bestmatch == "": raise Exception("no match for " + pkgname)
-        if optional and portage.versions.pkgsplit(bestmatch)[0] in masked_packages: continue
+        if optional and portage.versions.pkgsplit(bestmatch)[0] in dep_removals: continue
         #else
         if bestmatch in pkgs:
             if needed_by is not None:
@@ -101,7 +89,19 @@ def scan_pkg(pkgnames, masked_packages, pkgs = None, needed_by = None, optional 
         if license != "": pkg["LICENSE"] = license.replace("\n", " ")
 
         for depend in [rdepend,pdepend]:
-            scan_pkg(parse_depend(depend), masked_packages, pkgs, bestmatch, depend is pdepend)
+            depends = parse_depend(depend)
+
+            # remove specified dependencies
+            deps_to_be_removed = set()
+            if bestmatch in dep_removals:
+                for dep_for_removal in dep_removals[bestmatch]:
+                    for depend in depends:
+                        if dep_for_removal in vt.dep_match(depend):
+                            deps_to_be_removed.add(depend)
+            for dep in deps_to_be_removed:
+                depends.remove(dep)    
+
+            scan_pkg(depends, dep_removals, pkgs, bestmatch, depend is pdepend)
 
     return pkgs
 
@@ -188,8 +188,8 @@ def generate_metadata(pkgs_with_deps):
                     f.write("# " + prop + ": " + pkg[prop] + '\n')
             f.write('\n')
 
-def main(pkgs, bind_mount_root, toplevel_dirs, exec_package_scripts, devel, _generate_metadata):
-    pkgs_with_deps = scan_pkg(pkgs, get_masked_packages())
+def main(pkgs, bind_mount_root, toplevel_dirs, exec_package_scripts, devel, dep_removals, _generate_metadata):
+    pkgs_with_deps = scan_pkg(pkgs, dep_removals)
 
     global path_prefix
     if bind_mount_root: 
@@ -216,6 +216,27 @@ def main(pkgs, bind_mount_root, toplevel_dirs, exec_package_scripts, devel, _gen
     if _generate_metadata:
         generate_metadata(pkgs_with_deps)
 
+def parse_dep_removals(dep_removals):
+    rst = dict()
+    if dep_removals is None: return rst
+    #else
+    for dep in dep_removals:
+        pkg, deps = dep.split(":", 1)
+        pkg_matches = vt.dep_match(pkg)
+        if len(pkg_matches) == 0: raise Exception("no match for '%s'" % pkg)
+        elif len(pkg_matches) > 1: raise Exception("multiple matches for '%s'" % pkg)
+        #else
+        pkg_match = pkg_matches[0]
+        if pkg_match not in rst: rst[pkg_match] = set()
+        for dep in deps.split(","):
+            if dep.strip() == "": continue
+            dep_matches = vt.dep_match(dep)
+            if len(dep_matches) == 0: raise Exception("no match for '%s'" % dep)
+            #else
+            for dep_match in dep_matches:
+                rst[pkg_match].add(dep_match)
+    return rst
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Copy-up all packages')
     parser.add_argument("pkgs", type=str, nargs='+', help='List of packages')
@@ -223,11 +244,17 @@ if __name__ == '__main__':
     parser.add_argument("--toplevel-dirs", action="store_true", help="Copy-up top-level dirs like /run, /dev...")
     parser.add_argument("--exec-package-scripts", action="store_true", help="Execute package scripts")
     parser.add_argument("--devel", action="store_true", help="Copy-up devel files")
+    # --dep-removal can be specified multiple times.  its format is 'pkgname:dep1,dep2,...'
+    parser.add_argument("--dep-removal", type=str, action='append', help="Remove dependencies")
     parser.add_argument("--generate-metadata", action="store_true", help="Generate metadata under /.genpack")
     parser.add_argument("--dry-run", action="store_true", help="Dry run")
     parser.add_argument("--loglevel", type=str, default="INFO", help="Log level")
     args = parser.parse_args()
     logging.basicConfig(level=args.loglevel)
     if args.dry_run: dry_run = True
+
+    # parse dep-removal
+    dep_removals = parse_dep_removals(args.dep_removal)
+
     main(args.pkgs, args.bind_mount_root, args.toplevel_dirs, 
-         args.exec_package_scripts, args.devel, args.generate_metadata)
+         args.exec_package_scripts, args.devel, dep_removals, args.generate_metadata)
