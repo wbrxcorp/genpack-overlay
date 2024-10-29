@@ -11,7 +11,7 @@ RDEPEND="
 	!genpack/paravirt
 	genpack/genpack-install
 	baremetal? ( 
-		sys-kernel/linux-firmware
+		|| ( sys-kernel/linux-firmware sys-firmware/raspberrypi-wifi-ucode )
 		sys-fs/lsscsi
 		sys-apps/lshw
 		sys-apps/hwloc
