@@ -24,7 +24,7 @@ def get_package_set(set_name):
 def parse_depend(str):
     if str is None or str == "": return []
     reduced = portage.dep.use_reduce(str)
-    pkgs = []
+    pkgs = set()
     idx = 0
     while idx < len(reduced):
         item = reduced[idx]
@@ -36,36 +36,36 @@ def parse_depend(str):
             candidates = reduced[idx+1]
             for candidate in candidates:
                 if vt.dep_bestmatch(candidate) != "":
-                    pkgs.append(candidate)
+                    pkgs.add(candidate)
                     break
             idx += 2
             continue
         #else
-        pkgs.append(item)
+        pkgs.add(item)
         idx += 1
 
-    return pkgs
+    # return as list
+    return list(pkgs)
 
-def scan_pkg(pkgnames, dep_removals, pkgs = None, needed_by = None, optional = False):
+def scan_pkg(pkgnames, dep_removals, pkgs = None, needed_by = None):
     if pkgs is None: pkgs = dict()
     for pkgname in pkgnames:
         if pkgname[0] == '@':
             if pkgname not in pkgs:
                 pkgs[pkgname] = dict()
             if needed_by is not None:
-                if "NEEDED_BY" not in pkgs[pkgname]: pkgs[pkgname]["NEEDED_BY"] = []
-                pkgs[pkgname]["NEEDED_BY"].append(needed_by)
+                if "NEEDED_BY" not in pkgs[pkgname]: pkgs[pkgname]["NEEDED_BY"] = set()
+                pkgs[pkgname]["NEEDED_BY"].add(needed_by)
             scan_pkg(get_package_set(pkgname[1:]), dep_removals, pkgs, pkgname)
             continue
         #else
         bestmatch = vt.dep_bestmatch(pkgname)
         if bestmatch == "": raise Exception("no match for " + pkgname)
-        if optional and portage.versions.pkgsplit(bestmatch)[0] in dep_removals: continue
         #else
         if bestmatch in pkgs:
             if needed_by is not None:
-                if "NEEDED_BY" not in pkgs[bestmatch]: pkgs[bestmatch]["NEEDED_BY"] = []
-                pkgs[bestmatch]["NEEDED_BY"].append(needed_by)
+                if "NEEDED_BY" not in pkgs[bestmatch]: pkgs[bestmatch]["NEEDED_BY"] = set()
+                pkgs[bestmatch]["NEEDED_BY"].add(needed_by)
                 continue
         #else:
         rdepend, pdepend, slot, inherited, description, use, homepage, license = api.aux_get(bestmatch, ["RDEPEND", "PDEPEND","SLOT", "INHERITED", "DESCRIPTION", "USE", "HOMEPAGE", "LICENSE"])
@@ -78,8 +78,8 @@ def scan_pkg(pkgnames, dep_removals, pkgs = None, needed_by = None, optional = F
         pkgs[bestmatch] = pkg
 
         if needed_by is not None:
-            if "NEEDED_BY" not in pkg: pkg["NEEDED_BY"] = []
-            pkg["NEEDED_BY"].append(needed_by)
+            if "NEEDED_BY" not in pkg: pkg["NEEDED_BY"] = set()
+            pkg["NEEDED_BY"].add(needed_by)
         
         if slot != "": pkg["SLOT"] = slot.replace("\n", " ")
         if inherited != "": pkg["INHERITED"] = inherited.replace("\n", " ")
@@ -101,7 +101,7 @@ def scan_pkg(pkgnames, dep_removals, pkgs = None, needed_by = None, optional = F
             for dep in deps_to_be_removed:
                 depends.remove(dep)    
 
-            scan_pkg(depends, dep_removals, pkgs, bestmatch, depend is pdepend)
+            scan_pkg(depends, dep_removals, pkgs, bestmatch)
 
     return pkgs
 
