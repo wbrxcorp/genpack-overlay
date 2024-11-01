@@ -32,7 +32,7 @@ RDEPEND="
     sshd? ( net-misc/openssh )
     vi? ( app-editors/vim )
     strace? ( dev-debug/strace )
-    wireguard? ( net-vpn/wireguard-tools )
+    wireguard? ( net-vpn/wireguard-tools net-vpn/wg-genconf )
     btrfs? ( sys-fs/btrfs-progs )
     xfs? ( sys-fs/xfsprogs )
     cron? ( sys-process/cronie )
