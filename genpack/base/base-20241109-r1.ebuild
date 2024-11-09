@@ -89,6 +89,9 @@ src_install() {
 
     insinto /usr/lib/genpack-init
     use banner && doins "${FILESDIR}/01banner.py"
+    doins "${FILESDIR}/timezone.py"
+    doins "${FILESDIR}/locale.py"
+    doins "${FILESDIR}/generate-machine-id.py"
 
     exeinto /usr/bin
     use install-cloudflared && newexe "${FILESDIR}/install-cloudflared.sh" install-cloudflared
