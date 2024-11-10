@@ -25,6 +25,7 @@ RDEPEND="
     app-misc/ca-certificates
     sys-apps/coreutils
     sys-process/procps
+	sys-apps/which
     net-misc/rsync
     net-misc/iputils
     sys-apps/iproute2
