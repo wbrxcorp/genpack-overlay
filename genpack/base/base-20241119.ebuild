@@ -62,6 +62,7 @@ src_install() {
     insinto /usr/lib/genpack
     doins "${FILESDIR}/genpack-init-docker.py"
     doins "${FILESDIR}/genpack-init-mysql.py"
+    doins "${FILESDIR}/genpack-init-sshd.py"
 
     exeinto /usr/lib/genpack/package-scripts/app-containers/docker
     doexe "${FILESDIR}/docker.sh"
