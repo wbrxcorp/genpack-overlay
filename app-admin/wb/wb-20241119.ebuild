@@ -18,6 +18,7 @@ DEPEND="
 RDEPEND="
     dev-libs/iniparser sys-apps/util-linux sys-fs/btrfs-progs 
     net-misc/curl dev-libs/openssl media-gfx/qrencode dev-libs/wayland
+    net-vpn/wireguard-tools
     app-emulation/vm
 "
 
@@ -33,6 +34,7 @@ src_install() {
     exeinto /usr/lib/genpack-init
     doexe "${FILESDIR}/default_volume.py"
     doexe "${FILESDIR}/generate_privkey.py"
+    doexe "${FILESDIR}/wg-walbrix.py"
 
 	# script for genpack
 	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
