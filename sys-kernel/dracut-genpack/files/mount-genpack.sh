@@ -6,6 +6,29 @@ udevadm settle
 
 if [ "${root%%:*}" = "systemimg" ]; then
 	UUID=${root#systemimg:}
+	if [ "$UUID" = "auto" ]; then
+		info "Auto-detecting boot partition"
+		# enum all vfat partitions and find the one with /system.img
+		mkdir -p /mnt/systemimg-tmp-mount
+		for i in $(blkid -t TYPE=vfat -o device); do
+			mount -o ro -t vfat $i /mnt/systemimg-tmp-mount || continue
+			file_exists=$( [ -f /mnt/systemimg-tmp-mount/system.img ] && echo 1 || echo 0 )
+			umount /mnt/systemimg-tmp-mount
+			[ "$file_exists" = "1" ] || continue
+			#else
+			if [ "$UUID" != "auto" ]; then
+				info "Warning: Multiple boot partitions found.  Using the first one"
+				break
+			fi
+			UUID=$(blkid -o value -s UUID "$i")
+			info "Found boot partition $i"
+		done
+
+		if [ "$UUID" = "auto" ]; then
+			die "Failed to find boot partition"
+		fi
+	fi
+
 	info "Boot partition UUID=$UUID"
 
 	SYSTEMIMG_BOOT_PARTITION="$(label_uuid_to_dev UUID=$UUID)"
