@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="Paravirt virtual machine frontend"
 HOMEPAGE="https://github.com/shimarin/vm"
 EGIT_REPO_URI="https://github.com/shimarin/vm.git"
-EGIT_COMMIT="3e5e4a02eed08d668fe83292092a1ab0a4b9b2d4"
+EGIT_COMMIT="2476e5f"
 
 LICENSE="MIT"
 SLOT="0"
@@ -17,7 +17,8 @@ DEPEND="
 
 RDEPEND="
     app-emulation/qemu app-emulation/virtiofsd
-    dev-libs/iniparser sys-apps/systemd sys-apps/util-linux sys-fs/squashfuse[lz4,lzma,lzo,zlib,zstd]
+    >=dev-libs/iniparser-4.2.5 sys-apps/systemd sys-apps/util-linux 
+    sys-fs/squashfuse[lz4,lzma,lzo,zlib,zstd]
 "
 src_install() {
     emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"

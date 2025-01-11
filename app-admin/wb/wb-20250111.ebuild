@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="Walbrix admin command"
 HOMEPAGE="https://github.com/wbrxcorp/wb"
 EGIT_REPO_URI="https://github.com/wbrxcorp/wb.git"
-EGIT_COMMIT="3ccbdc4bf0d1729a0020117ed3d6b2c398d4b600"
+EGIT_COMMIT="0cdfb4a"
 
 LICENSE="MIT"
 SLOT="0"
@@ -16,7 +16,7 @@ DEPEND="
 "
 
 RDEPEND="
-    dev-libs/iniparser sys-apps/util-linux sys-fs/btrfs-progs 
+    >=dev-libs/iniparser-4.2.5 sys-apps/util-linux sys-fs/btrfs-progs 
     net-misc/curl dev-libs/openssl media-gfx/qrencode dev-libs/wayland
     net-vpn/wireguard-tools
     app-emulation/vm
