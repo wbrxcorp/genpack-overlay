@@ -4,6 +4,7 @@ inherit git-r3 genpack-ignore
 DESCRIPTION="Support tools for genpack"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-progs"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-progs.git"
+EGIT_COMMIT="be3179c"
 
 LICENSE="MIT"
 SLOT="0"
@@ -17,11 +18,6 @@ RDEPEND="
     app-admin/eclean-kernel
 "
 
-pkg_setup() {
-    export EGIT_COMMIT_DATE="$(echo ${PV} | sed 's/\(....\)\(..\)\(..\)/\1-\2-\3/')"
-    einfo "EGIT_COMMIT_DATE set to ${EGIT_COMMIT_DATE}"
-}
-
 src_compile() {
     emake || die "emake failed"
 }
@@ -33,6 +29,6 @@ src_install() {
 
     exeinto "/usr/bin"
     newexe "${FILESDIR}/copyup-packages.py" copyup-packages
-    newexe "${FILESDIR}/genpack-prepare.sh" genpack-prepare
+    newexe "${FILESDIR}/genpack-prepare.py" genpack-prepare
 }
 
