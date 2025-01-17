@@ -110,4 +110,10 @@ fi
 [ -e "$GENPACK_OVERLAY_ROOT" ] || mkdir -m 0755 -p $GENPACK_OVERLAY_ROOT
 [ -e "$GENPACK_OVERLAY_WORK" ] || mkdir -m 0755 -p $GENPACK_OVERLAY_WORK
 
+# if /usr exists in rw, its timestamp must be same as ro's corresponding one
+# because systemd considers /usr's timestamp as the distribution's timestamp
+if [ -e /run/initramfs/ro/usr -a -e /run/initramfs/rw/usr ]; then
+	/usr/bin/touch -r /run/initramfs/ro/usr /run/initramfs/rw/usr
+fi
+
 mount -t overlay overlay -o lowerdir=/run/initramfs/ro,upperdir=$GENPACK_OVERLAY_ROOT,workdir=$GENPACK_OVERLAY_WORK $NEWROOT || die "Failed to mount overlay root"
