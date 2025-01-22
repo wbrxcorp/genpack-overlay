@@ -85,6 +85,10 @@ src_install() {
         exeinto /usr/lib/genpack/package-scripts/net-misc/openssh
         doexe "${FILESDIR}/sshd.sh"
     fi
+    if use vi; then
+        exeinto /usr/lib/genpack/package-scripts/app-editors/vim
+        doexe "${FILESDIR}/vim.sh"
+    fi
 
     exeinto /usr/bin
     newexe "${FILESDIR}/glsa-check.py" genpack-glsa-check
