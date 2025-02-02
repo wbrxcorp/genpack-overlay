@@ -30,5 +30,5 @@ src_install() {
     exeinto "/usr/bin"
     newexe "${FILESDIR}/copyup-packages.py" copyup-packages
     newexe "${FILESDIR}/genpack-prepare.py" genpack-prepare
+    newexe "${FILESDIR}/check-unwanted-pythons.py" check-unwanted-pythons
 }
-
