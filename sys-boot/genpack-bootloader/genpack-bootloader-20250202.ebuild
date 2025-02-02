@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="EFI/BIOS bootloader for genpack system.img"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-bootloader"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-bootloader.git"
-EGIT_COMMIT="a1d999ba0e175be1ab393a2da0f1e1a8186c1095"
+EGIT_COMMIT="26e00d1f1857349b44128f44c4186977d097cab0"
 
 LICENSE="GPL-3"
 SLOT="0"
