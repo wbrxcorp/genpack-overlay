@@ -29,6 +29,7 @@ def main(disable_using_binpkg):
     subprocess.run(['etc-update', '--automode', '-5'], check=True)
     subprocess.run(['eclean-dist', '-d'], check=True)
     subprocess.run(['eclean-pkg', '-d'], check=True)
+    subprocess.run(['check-unwanted-pythons'], check=True)
     open('/.done', 'w').close()
 
 if __name__ == '__main__':
