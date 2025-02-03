@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os,logging,re,argparse
+import sys,logging,re,argparse,subprocess
 import portage
 from portage.dbapi import vartree
 
@@ -30,15 +30,29 @@ def detect_unwanted_pythons(pkgdb_dir="/var/db/pkg"):
             unwanted_pythons.append(p)
     return unwanted_pythons
 
+def unmerge_packages(packages):
+    cmdline = ["emerge", "--unmerge"]
+    for package in packages:
+        cmdline.append('=' + package)
+    subprocess.check_call(cmdline)
+
 if __name__ == "__main__":
+    progname = sys.argv[0]
     argparser = argparse.ArgumentParser(description="Detect unwanted Python versions")
     argparser.add_argument("--debug", action="store_true", help="Enable debug logging")
-    logging.basicConfig(level=logging.DEBUG if argparser.parse_args().debug else logging.INFO)
+    argparser.add_argument("--unmerge", action="store_true", help="Unmerge unwanted Python versions")
+    args = argparser.parse_args()
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     try:
         unwanted_pythons = detect_unwanted_pythons()
         if len(unwanted_pythons) > 0:
-            raise Exception("Unwanted Python versions found: %s. Edit package.mask and run `emerge --depclean` to eliminate them." % ",".join(unwanted_pythons))
+            if args.unmerge:
+                logging.info("Unmerging unwanted Python versions: %s" % ",".join(unwanted_pythons))
+                unmerge_packages(unwanted_pythons)
+            else:
+                raise Exception("Unwanted Python versions found: %s. Edit package.mask and run `%s --unmerge` to eliminate them." % (",".join(unwanted_pythons), progname))
+        else:
+            logging.info("No unwanted Python versions found")
     except Exception as e:
         logging.error(e)
         exit(1)
-    logging.info("Good. only one Python version installed")
