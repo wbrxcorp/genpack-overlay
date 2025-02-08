@@ -16,7 +16,7 @@ IUSE=""
 
 RDEPEND="${PYTHON_DEPS}"
 DEPEND="${RDEPEND}"
-BDEPEND="$(python_gen_cond_dep 'dev-python/pybind11[${PYTHON_USEDEP}]')"
+BDEPEND="$(python_gen_cond_dep 'dev-python/pybind11[${PYTHON_USEDEP}]') dev-cpp/argparse"
 
 src_compile() {
 	emake PYTHON=${EPYTHON} genpack-init || die "emake failed"
