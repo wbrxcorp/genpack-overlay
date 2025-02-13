@@ -20,7 +20,6 @@ def configure(ini):
     #else
     logging.debug("WiFi SSID: %s" % wifi_ssid)
     wpa_supplicant_dir = root_path("/etc/wpa_supplicant")
-    print(wpa_supplicant_dir)
     wpa_supplicant_dir.mkdir(parents=True,exist_ok=True)
     for conf in wpa_supplicant_dir.glob("wpa_supplicant-*.conf"):
         conf.unlink()
@@ -57,11 +56,15 @@ def configure(ini):
                 f.write('\tieee80211w=2\n')
             else:
                 f.write('\tpsk="%s"\n' % wifi_key)
-        f.write('}')
+        else:
+            f.write('\tkey_mgmt=NONE\n')
+            logging.warning("WiFi key not set.  Using key_mgmt=NONE.")
+        f.write('}\n')
         logging.debug("%s created" % conf)
 
     enable_systemd_service("wpa_supplicant@%s" % interface)
 
+# mkdir sys/class/net/wlan0/wireless
 # PYTHONPATH=/path/to/mock python3 wifi.py
 if __name__ == "__main__":
     import argparse,configparser
@@ -69,12 +72,14 @@ if __name__ == "__main__":
 
     argparser = argparse.ArgumentParser()
     argparser.add_argument("--wpa3", default=False, action="store_true")
+    argparser.add_argument("--public-wifi", default=False, action="store_true")
     args = argparser.parse_args()
 
     ini = configparser.ConfigParser()
     ini.add_section("_default")
     ini.set("_default", "wifi_ssid", "my_wifi")
-    ini.set("_default", "wifi_key", "my_password")
+    if not args.public_wifi:
+        ini.set("_default", "wifi_key", "my_password")
     if args.wpa3:
         ini.set("_default", "wifi_wpa3", "yes")
     configure(ini)
