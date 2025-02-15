@@ -9,7 +9,7 @@ IUSE=""
 S="${WORKDIR}"
 
 RDEPEND="
-	net-wireless/wpa_supplicant
+	net-wireless/wpa_supplicant_any80211
 	net-wireless/iw
 	net-wireless/wireless-tools
 	net-wireless/bluez
@@ -17,8 +17,6 @@ RDEPEND="
 "
 
 src_install() {
-	insinto /etc/systemd/network
-	doins "${FILESDIR}/54-wlan.network"
 	insinto /usr/lib/genpack-init
 	doins "${FILESDIR}/wifi.py"
 }
