@@ -6,7 +6,7 @@ DESCRIPTION="Just connect with any WiFi interface without specifying its exact n
 HOMEPAGE="https://github.com/shimarin/wpa_supplicant_any80211"
 LICENSE="MIT"
 EGIT_REPO_URI="https://github.com/shimarin/wpa_supplicant_any80211.git"
-EGIT_COMMIT="ae1aebf182db426cf4dc98bf1ac0dcd177334874"
+EGIT_COMMIT="7618e502319c5e80f80365305460696c6bb9fe47"
 
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
@@ -24,5 +24,7 @@ src_install() {
 
 	insinto /usr/lib/systemd/system
     doins "${S}/wpa_supplicant_any80211.service"
-}
 
+	insinto /usr/lib/genpack-init
+	doins "${FILESDIR}/wifi.py"
+}

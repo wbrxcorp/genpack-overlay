@@ -1,6 +1,6 @@
 EAPI=8
 
-DESCRIPTION="systemd-networkd config for wireless"
+DESCRIPTION="Metapackage for wireless"
 
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
@@ -15,9 +15,3 @@ RDEPEND="
 	net-wireless/bluez
 	net-wireless/hostapd
 "
-
-src_install() {
-	insinto /usr/lib/genpack-init
-	doins "${FILESDIR}/wifi.py"
-}
-
