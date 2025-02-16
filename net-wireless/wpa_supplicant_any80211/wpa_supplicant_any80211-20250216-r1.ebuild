@@ -26,5 +26,5 @@ src_install() {
     doins "${S}/wpa_supplicant_any80211.service"
 
 	insinto /usr/lib/genpack-init
-	doins "${FILESDIR}/wifi.py"
+	doins "${FILESDIR}/50wifi.py"
 }
