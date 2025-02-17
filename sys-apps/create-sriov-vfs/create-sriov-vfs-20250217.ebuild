@@ -6,7 +6,7 @@ DESCRIPTION="Create SR-IOV VFs"
 HOMEPAGE="https://github.com/shimarin/create-sriov-vfs"
 LICENSE="MIT"
 EGIT_REPO_URI="https://github.com/shimarin/create-sriov-vfs.git"
-EGIT_COMMIT="138c64d15403f34612f2e0832fd6fdf791a9c6c6"
+EGIT_COMMIT="f2bab8eef75e3c93a4ebb87705acec3f635a8c8c"
 
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
