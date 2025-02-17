@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="Paravirt virtual machine frontend"
 HOMEPAGE="https://github.com/shimarin/vm"
 EGIT_REPO_URI="https://github.com/shimarin/vm.git"
-EGIT_COMMIT="a80a7550ae5f733e27cca9ed044ab0ff0789a0aa"
+EGIT_COMMIT="f3c1d1c8058fce7a9bfdc44ef17a4e3bfb217f5d"
 
 LICENSE="MIT"
 SLOT="0"
