@@ -8,7 +8,7 @@ ConditionDirectoryNotEmpty=/var/vm/%i
 Type=notify
 Environment="DEFAULT_NET=br0"
 EnvironmentFile=-/etc/default/vm
-ExecStart=/usr/bin/vm service --default-net=$DEFAULT_NET /var/vm/%i
+ExecStart=/usr/bin/vm service --default-net=${DEFAULT_NET} /var/vm/%i
 KillMode=mixed
 TimeoutStopSec=180
 
