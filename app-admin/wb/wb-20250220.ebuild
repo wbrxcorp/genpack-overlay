@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="Walbrix admin command"
 HOMEPAGE="https://github.com/wbrxcorp/wb"
 EGIT_REPO_URI="https://github.com/wbrxcorp/wb.git"
-EGIT_COMMIT="0cdfb4a"
+EGIT_COMMIT="dd17219e9be4c16e593083061558432395b33f26"
 
 LICENSE="MIT"
 SLOT="0"
