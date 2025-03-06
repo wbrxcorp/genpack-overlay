@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import subprocess,os
+import subprocess,os,pathlib
 
 def get_all_sets():
     sets_dir = '/etc/portage/sets'
@@ -30,7 +30,7 @@ def main(disable_using_binpkg):
     subprocess.run(['eclean-dist', '-d'], check=True)
     subprocess.run(['eclean-pkg', '-d'], check=True)
     subprocess.run(['check-unwanted-pythons'], check=True)
-    open('/.done', 'w').close()
+    pathlib.Path('/.done').touch()
 
 if __name__ == '__main__':
     import argparse
