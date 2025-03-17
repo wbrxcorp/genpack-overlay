@@ -19,6 +19,7 @@ RDEPEND="
     app-emulation/qemu app-emulation/virtiofsd
     >=dev-libs/iniparser-4.2.5 sys-apps/systemd sys-apps/util-linux 
     sys-fs/squashfuse[lz4,lzma,lzo,zlib,zstd]
+    dev-cpp/libxmlpp
 "
 src_install() {
     emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
