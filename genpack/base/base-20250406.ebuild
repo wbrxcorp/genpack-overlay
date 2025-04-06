@@ -49,6 +49,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
     doexe "${FILESDIR}/copyup-fundamentals.sh"
 
+    exeinto /usr/lib/genpack/package-scripts/sys-libs/glibc
+    doexe "${FILESDIR}/locale-gen.sh"
+
     exeinto /usr/lib/genpack/package-scripts/virtual/dist-kernel
     doexe "${FILESDIR}/kernel-install.py"
     use banner && doexe "${FILESDIR}/generate-default-banner.sh"
