@@ -27,5 +27,6 @@ src_install() {
 	dodir /usr/lib/dracut/dracut.conf.d
 	echo 'omit_dracutmodules+=" systemd i18n "' > "${D}/usr/lib/dracut/dracut.conf.d/no-for-genpack.conf"
 	echo 'add_dracutmodules+=" genpack "' > "${D}/usr/lib/dracut/dracut.conf.d/genpack.conf"
+	echo 'hostonly="no"' > "${D}/usr/lib/dracut/dracut.conf.d/no-hostonly.conf"
 }
 
