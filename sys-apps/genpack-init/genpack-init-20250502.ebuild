@@ -1,6 +1,6 @@
 EAPI=8
 
-PYTHON_COMPAT=( python3_12 )
+PYTHON_COMPAT=( python3_13 )
 
 inherit git-r3
 inherit python-single-r1
