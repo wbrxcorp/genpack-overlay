@@ -12,8 +12,24 @@ recursive-touch /usr/bin/sh /usr/bin/sed /usr/bin/awk /usr/bin/python /bin/nano 
 # remove root password
 sed -i 's/^root:\*:/root::/' /etc/shadow
 
-# default iptables rules
-touch /var/lib/iptables/rules-save /var/lib/ip6tables/rules-save
+# disable becoming root with empty password
+if [ -f /usr/lib/pam.d/polkit-1 ]; then
+        sed -Ei '/^[[:space:]]*auth[[:space:]]+include[[:space:]]+system-auth([[:space:]]|$)/i auth   required   pam_unix.so try_first_pass' /usr/lib/pam.d/polkit-1
+fi
+
+# empty iptables/nftables rules
+if [ -d /var/lib/iptables ]; then
+        touch /var/lib/iptables/rules-save
+fi
+if [ -d /var/lib/ip6tables ]; then
+        touch /var/lib/ip6tables/rules-save
+fi
+if [ -d /var/lib/nftables ]; then
+        touch /var/lib/nftables/rules-save
+fi
+
+# disable DNSSEC https://www.e-ontap.com/dns/onsenkansai3/
+sed -i 's/^#DNSSEC=.*/DNSSEC=no/' /etc/systemd/resolved.conf
 
 # set locale conf to pam env
 sed -i 'r"s/^export LANG=\(.*\)$/#export LANG=\1 # apply \/etc\/locale.conf instead/' /etc/profile.env
