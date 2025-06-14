@@ -67,11 +67,17 @@ src_install() {
     doins "${FILESDIR}/genpack-init-mysql.py"
     doins "${FILESDIR}/genpack-init-sshd.py"
 
+    exeinto /usr/lib/genpack/package-scripts/sys-auth/polkit
+    doexe "${FILESDIR}/polkit.sh"
+
     exeinto /usr/lib/genpack/package-scripts/app-containers/docker
     doexe "${FILESDIR}/docker.sh"
 
     exeinto /usr/lib/genpack/package-scripts/dev-db/mysql
     doexe "${FILESDIR}/mysql.sh"
+
+    exeinto /usr/lib/genpack/package-scripts/dev-db/postgresql
+    doexe "${FILESDIR}/postgresql.sh"
 
     exeinto /usr/lib/genpack/package-scripts/www-servers/apache
     doexe "${FILESDIR}/apache.sh"
