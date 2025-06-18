@@ -3,7 +3,7 @@ EAPI=8
 DESCRIPTION="base system"
 
 SLOT="0"
-KEYWORDS="amd64 arm64 riscv"
+KEYWORDS="amd64 x86 arm64 riscv"
 
 IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner +install-cloudflared"
 

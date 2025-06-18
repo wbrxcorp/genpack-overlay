@@ -11,7 +11,7 @@ EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-init.git"
 EGIT_COMMIT="721060c832335b240e6bd6998779235e5185468a"
 
 SLOT="0"
-KEYWORDS="amd64 arm64 riscv"
+KEYWORDS="amd64 x86 arm64 riscv"
 IUSE=""
 
 RDEPEND="${PYTHON_DEPS}"

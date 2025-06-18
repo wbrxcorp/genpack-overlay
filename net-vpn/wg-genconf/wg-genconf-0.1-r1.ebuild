@@ -7,7 +7,7 @@ EGIT_REPO_URI="https://github.com/shimarin/wg-genconf.git"
 EGIT_COMMIT="549b21668465bd5ca7a60fc9fc4b6a4ddf9af89f"
 
 SLOT="0"
-KEYWORDS="amd64 arm64 riscv"
+KEYWORDS="amd64 x86 arm64 riscv"
 
 DEPEND="dev-cpp/argparse"
 RDEPEND="

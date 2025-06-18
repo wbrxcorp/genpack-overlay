@@ -3,7 +3,7 @@ EAPI=8
 DESCRIPTION="stuffs for system.img"
 
 SLOT="0"
-KEYWORDS="amd64 arm64 riscv"
+KEYWORDS="amd64 x86 arm64 riscv"
 IUSE="baremetal"
 
 RDEPEND="
