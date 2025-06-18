@@ -3,7 +3,7 @@ EAPI=8
 DESCRIPTION="Metapackage for wireless"
 
 SLOT="0"
-KEYWORDS="amd64 arm64 riscv"
+KEYWORDS="amd64 x86 arm64 riscv"
 IUSE=""
 
 S="${WORKDIR}"

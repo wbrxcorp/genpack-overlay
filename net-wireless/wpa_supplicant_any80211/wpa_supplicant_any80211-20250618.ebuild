@@ -9,7 +9,7 @@ EGIT_REPO_URI="https://github.com/shimarin/wpa_supplicant_any80211.git"
 EGIT_COMMIT="7618e502319c5e80f80365305460696c6bb9fe47"
 
 SLOT="0"
-KEYWORDS="amd64 arm64 riscv"
+KEYWORDS="amd64 x86 arm64 riscv"
 IUSE=""
 
 RDEPEND="
