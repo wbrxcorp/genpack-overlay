@@ -25,4 +25,6 @@ src_install() {
 
     insinto /usr/lib/genpack-init
     doins "${FILESDIR}/swapfile.py"
+    doins "${FILESDIR}/timezone-paravirt.py"
+    doins "${FILESDIR}/lang-paravirt.py"
 }
