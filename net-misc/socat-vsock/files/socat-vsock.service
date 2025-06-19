@@ -1,0 +1,11 @@
+[Unit]
+Description=Socat VSOCK to TCP bridge for port %i
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/socat VSOCK-LISTEN:%i,reuseaddr,fork TCP:localhost:%i
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
