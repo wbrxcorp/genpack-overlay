@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+TOMCAT=$(echo /usr/share/tomcat-*/bin/catalina.sh | cut -d'/' -f4)
+
+CATALINA_HOME=/usr/share/${TOMCAT}
+CATALINA_BASE=/var/lib/${TOMCAT}
+CATALINA_TMPDIR=/run/tomcat
+
+CLASSPATH="${CATALINA_HOME}/bin/bootstrap.jar:${CATALINA_HOME}/bin/tomcat-juli.jar"
+DEPEND=$(java-config --query DEPEND --package $TOMCAT)
+GCLASSPATH=$(java-config --with-dependencies --classpath "${DEPEND//:/,}")
+
+if [ -r "${CATALINA_HOME}"/bin/tomcat-juli.jar ]; then
+	args="${args} -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
+	-Djava.util.logging.config.file=${CATALINA_BASE}/conf/logging.properties"
+fi
+
+exec java \
+	${args} \
+	-Dcatalina.base="${CATALINA_BASE}" \
+	-Dcatalina.home="${CATALINA_HOME}" \
+	-Djava.io.tmpdir="${CATALINA_TMPDIR}" \
+	-Dgentoo.classpath="${GCLASSPATH//:/,}" \
+	-classpath "${CLASSPATH}" \
+	org.apache.catalina.startup.Bootstrap 

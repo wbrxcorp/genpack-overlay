@@ -1,0 +1,12 @@
+[Unit]
+Description=Apache Tomcat Web Application Server
+After=network.target
+
+[Service]
+Type=simple
+User=tomcat
+Group=tomcat
+ExecStart=/usr/bin/tomcat
+
+[Install]
+WantedBy=multi-user.target
