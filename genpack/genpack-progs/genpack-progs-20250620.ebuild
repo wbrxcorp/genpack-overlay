@@ -26,9 +26,12 @@ src_install() {
     emake DESTDIR="${D}" install || die "emake install failed"
     # genpack-install is moved to separate package
     rm -f "${D}/usr/bin/genpack-install" "${D}/usr/bin/install-cloudflared"
+    # with-mysql is moved to this ebuild
+    rm -f "${D}/usr/local/sbin/with-mysql"
 
     exeinto "/usr/bin"
     newexe "${FILESDIR}/copyup-packages.py" copyup-packages
     newexe "${FILESDIR}/genpack-prepare.py" genpack-prepare
     newexe "${FILESDIR}/check-unwanted-pythons.py" check-unwanted-pythons
+    newexe "${FILESDIR}/with-mysql.py" with-mysql
 }

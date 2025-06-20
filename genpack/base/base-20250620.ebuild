@@ -85,6 +85,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/sys-devel/binutils
     doexe "${FILESDIR}/binutils.sh"
 
+    exeinto /usr/lib/genpack/package-scripts/virtual/jdk
+    doexe "${FILESDIR}/java.sh"
+
     exeinto /usr/lib/genpack/package-scripts/www-servers/apache
     doexe "${FILESDIR}/apache.sh"
 
