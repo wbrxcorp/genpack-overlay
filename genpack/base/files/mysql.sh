@@ -9,7 +9,7 @@ echo 'plugin-load-add=auth_socket.so' >> $SERVER_CONF
 if [ ! -d /var/lib/mysql/mysql -a -x /usr/sbin/mysqld ]; then
     # Initialize MySQL data directory
     # with-mysql is a part of genpack-progs
-    with-mysql "mysql --mysql-plugin=auth_socket.so -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket\""
+    with-mysql --mysql-plugin=auth_socket.so "mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket\""
 fi
 
 mkdir -p /usr/lib/genpack-init
