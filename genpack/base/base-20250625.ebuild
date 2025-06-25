@@ -21,6 +21,7 @@ RDEPEND="
     sys-apps/net-tools
     app-arch/gzip
     dev-lang/python
+    dev-python/requests
     sys-apps/grep
     app-misc/ca-certificates
     sys-apps/coreutils
@@ -113,8 +114,8 @@ src_install() {
 
     insinto /usr/lib/genpack-init
     use banner && doins "${FILESDIR}/01banner.py"
-    doins "${FILESDIR}/timezone.py"
-    doins "${FILESDIR}/locale.py"
+    newins "${FILESDIR}/genpack-init-timezone.py" timezone.py
+    newins "${FILESDIR}/genpack-init-locale.py" locale.py
     doins "${FILESDIR}/generate-machine-id.py"
 
     exeinto /usr/bin
