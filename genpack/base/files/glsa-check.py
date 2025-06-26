@@ -1,15 +1,19 @@
 #!/usr/bin/python3 -B
 
-import os,argparse,re,glob,logging,tarfile,io
+import os,argparse,re,glob,logging,tarfile,io,subprocess
+from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
 
-import requests
 import portage.versions # /usr/lib/python*/site-packages/portage/versions.py
 
-DEFAULT_PORTAGE_LATEST_URL = "http://ftp.iij.ad.jp/pub/linux/gentoo/snapshots/portage-latest.tar.xz"
+RSYNC_URLS = [
+    ("rsync://ftp.riken.jp/gentoo-portage", True),
+    ("rsync://ftp.jaist.ac.jp/pub/Linux/Gentoo-portage", False), 
+    ("rsync://repo.jing.rocks/gentoo-portage", True)
+]
 
 def parse_package_line(line):
-    #print(line)
+    logging.debug("Parsing package line: %s" % line)
     category, package_and_version_and_revision_and_slot = line.split('/', 1)
 
     slotpos = re.search(r'\[.*\]$', package_and_version_and_revision_and_slot)
@@ -27,8 +31,8 @@ def parse_package_line(line):
     else:
         revision = None
         package_and_version = package_and_version_and_revision
-    
-    #print(package_and_version)
+
+    logging.debug("Parsed package and version: %s" % package_and_version)
     package, version = package_and_version.rsplit('-', 1)
 
     return [category, package, version, revision, slot]
@@ -69,7 +73,7 @@ def condition_matches(installed, range, specified):
     raise Exception("Unknown range: %s" % range)
 
 def is_package_affected(version, slot, unvs):
-    #print("Checking %s" % version)
+    logging.debug("Checking %s" % version)
     for unv in unvs:
         if slot is not None and slot != unv[2]: continue
         #else
@@ -77,6 +81,8 @@ def is_package_affected(version, slot, unvs):
     return False
 
 def check(packages_file, glsa_dir, mask_dir):
+    logging.info("Checking GLSAs against installed packages from %s" % packages_file)
+
     installed_packages = {}
     with open(packages_file) as f:
         while True:
@@ -116,46 +122,33 @@ def check(packages_file, glsa_dir, mask_dir):
                     if package_name_and_version not in vulnerabilities:
                         vulnerabilities[package_name_and_version] = []
                     vulnerabilities[package_name_and_version].append(glsa_id)
-                    #print("%s-%s is affected by https://security.gentoo.org/glsa/%s" % (package_name, version, glsa_id))
-                    #vulnerability_found = True
     return vulnerabilities
 
-def download(url, glsa_dir, last_headers = None):
-    headers = {'User-Agent': "genpack-glsa-check/1.0"}
-    response = requests.head(url, headers=headers)
-    response.raise_for_status()  # Raise an error for bad responses
-    headers = f"Last-Modified:{response.headers.get('Last-Modified', '')} ETag:{response.headers.get('ETag', '')} Content-Length:{response.headers.get('Content-Length', '')}"
-
-    if last_headers == headers and os.path.exists(glsa_dir):
-        logging.info("Portage is unchanged since last check.")
-        return None
+def sync(glsa_dir, rsync_url=None):
+    rsync_urls = [(rsync_url, False)] if rsync_url else RSYNC_URLS
+    success = False
+    for url in rsync_urls:
+        logging.info("Syncing GLSA data from %s" % url[0])
+        try:
+            rsync_cmdline =  ["rsync", "-a", "--delete", "--quiet"]
+            if url[1]:  # If the URL allows compression
+                rsync_cmdline.append("--compress")
+            rsync_cmdline += [f"{url[0]}/metadata/glsa/", glsa_dir]
+            subprocess.run(rsync_cmdline, check=True)
+            success = True
+            break
+        except Exception as e:
+            logging.error(f"Failed to sync from {url[0]}: {e}")
+    if not success:
+        raise Exception("Failed to sync GLSA data from all provided URLs.")
     #else
-    os.makedirs(glsa_dir, exist_ok=True)
-    # download and extract
-    logging.info("Downloading portage from %s" % url)
-    response = requests.get(url, stream=True)
-    response.raise_for_status()  # Raise an error for bad responses
-    response.raw.decode_content = True
-
-    stream = io.BufferedReader(response.raw)
-
-    # ストリーミングモードで開く ("r|xz" または圧縮自動判別の "r|*")
-    with tarfile.open(fileobj=stream, mode="r|xz") as tar:
-        for member in tar:
-            # ここで欲しいファイルだけを判定
-            if not member.name.startswith("portage/metadata/glsa"): continue
-            if not member.isfile(): continue
-            #else
-            target = os.path.join(glsa_dir, os.path.basename(member.name))
-            f = tar.extractfile(member)
-            if f is None: continue
-            #else
-            with open(target, "wb") as out:
-                out.write(f.read())
-            logging.debug("Extracted %s", member.name)
-
-    logging.info("Portage downloaded and saved.")
-    return headers
+    logging.info("GLSA data synced successfully.")
+    timestamp_commit = open("/var/lib/genpack/glsa-check/glsa/timestamp.commit").read().strip().split()
+    if len(timestamp_commit) < 3:
+        logging.warning("Timestamp commit file is malformed. using placeholder.")
+        return "0000-00-00T00:00:00Z"
+    #else
+    return timestamp_commit[2]  # Return the timestamp from the commit file
 
 def get_data_dir():
     return "/var/lib/genpack/glsa-check" if os.getuid() == 0 else os.path.expanduser("~/.local/lib/genpack/glsa-check")
@@ -165,7 +158,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='GLSA Check')
     parser.add_argument("--debug", action='store_true', help="Enable debug logging")
     parser.add_argument("--packages-file", default="/.genpack/packages")
-    parser.add_argument("--portage-url", default=DEFAULT_PORTAGE_LATEST_URL, help="URL to download the latest portage snapshot")
+    parser.add_argument("--rsync-url", default=None, help="Rsync URL to sync GLSA data (default: use predefined URLs)")
     parser.add_argument("--data-dir", default=data_dir, help="Directory to store downloaded data")
     parser.add_argument("--check-even-if-unchanged", action='store_true', help="Check GLSAs even if the portage snapshot is unchanged")
     parser.add_argument("--outfile", default=os.path.join(data_dir,"glsa-check.out"), help="Output file to save the results")
@@ -175,20 +168,14 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
+    os.makedirs(args.data_dir, exist_ok=True)
     glsa_dir = os.path.join(args.data_dir, "glsa")
-    last_headers_path = os.path.join(args.data_dir, "portage-headers")
-    last_headers = open(last_headers_path, "r").read().strip() if os.path.exists(last_headers_path) else None
-    headers = download(args.portage_url, glsa_dir, last_headers)
-    if headers is None or headers == last_headers:
-        logging.info("No new GLSAs found.")
-        if not args.check_even_if_unchanged:
-            exit(0)
-    #else
+
+    glsa_timestamp = sync(glsa_dir, args.rsync_url)
     mask_dir = os.path.join(args.data_dir, "mask")
     vulnerabilities = check(args.packages_file, glsa_dir, mask_dir)
-    if headers is not None:
-        with open(last_headers_path, "w") as f:
-            f.write(headers)
+
+    current_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     if len(vulnerabilities) == 0:
         logging.info("No vulnerabilities found.")
@@ -201,7 +188,8 @@ if __name__ == '__main__':
                 with open(args.outfile, "w") as f:
                     f.write("# No vulnerabilities found.\n")
                     f.write(f"# packages file: {args.packages_file}\n")
-                    f.write(f"# portage headers: {headers or last_headers}\n")
+                    f.write(f"# GLSA timestamp: {glsa_timestamp}\n")
+                    f.write(f"# Check time: {current_timestamp}\n")
         exit(0)
 
     #else    
@@ -210,7 +198,8 @@ if __name__ == '__main__':
     if f is not None:
         f.write("# Vulnerabilities found:\n")
         f.write(f"# packages file: {args.packages_file}\n")
-        f.write(f"# portage headers: {headers or last_headers}\n")
+        f.write(f"# GLSA timestamp: {glsa_timestamp}\n")
+        f.write(f"# Check time: {current_timestamp}\n")
     for package, glsa_ids in vulnerabilities.items():
         logging.info("  %s: %s", package, ", ".join(glsa_ids))
         if f is not None: 
