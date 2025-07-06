@@ -23,6 +23,11 @@ if [ -d /var/lib/nftables ]; then
         touch /var/lib/nftables/rules-save
 fi
 
+# update mime database
+if [ -d /usr/share/mime -a -x /usr/bin/update-mime-database ]; then
+        update-mime-database /usr/share/mime
+fi
+
 # set locale conf to pam env
 sed -i 'r"s/^export LANG=\(.*\)$/#export LANG=\1 # apply \/etc\/locale.conf instead/' /etc/profile.env
 sed -i 'r"/^session\t\+required\t\+pam_env\.so envfile=\/etc\/profile\.env$/a session\t\trequired\tpam_env.so envfile=\/etc\/locale.conf' /etc/pam.d/system-login
