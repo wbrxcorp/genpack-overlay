@@ -1,0 +1,34 @@
+# original: https://github.com/chr0mag/geoipsets/blob/main/systemd/update-geoipsets.service
+[Unit]
+Description=Update geoipsets
+Wants=network.target network-online.target
+After=network.target network-online.target
+AssertFileIsExecutable=/usr/bin/geoipsets
+AssertPathExists=/var/lib
+
+[Service]
+Type=oneshot
+CapabilityBoundingSet=CAP_NET_ADMIN
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
+RestrictNamespaces=true
+NoNewPrivileges=true
+PrivateDevices=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProtectSystem=full
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+ProtectHostname=true
+LockPersonality=true
+ExecStart=/usr/bin/geoipsets -p dbip -a ipv4 -a ipv6 -f nftables --output-dir /var/lib
+ExecStartPost=systemctl start nftables-load
+StandardOutput=journal
+StandardError=journal
