@@ -17,9 +17,10 @@ RDEPEND="
     sys-apps/genpack-init
     sys-apps/gentoo-systemd-integration
     sys-libs/timezone-data
-    app-shells/bash
+    app-alternatives/sh
     sys-apps/net-tools
     app-arch/gzip
+    app-arch/unzip
     dev-lang/python
     dev-python/requests
     sys-apps/grep
