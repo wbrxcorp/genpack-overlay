@@ -30,10 +30,11 @@ src_install() {
     rm -f "${D}/usr/local/sbin/with-mysql"
 
     exeinto "/usr/bin"
-    newexe "${FILESDIR}/copyup-packages.py" copyup-packages
-    newexe "${FILESDIR}/genpack-prepare.py" genpack-prepare
+    newexe "${FILESDIR}/copyup-packages.py" copyup-packages # will be deprecated
+    newexe "${FILESDIR}/genpack-prepare.py" genpack-prepare # will be deprecated
     newexe "${FILESDIR}/list-pkg-files.py" list-pkg-files
     newexe "${FILESDIR}/exec-package-scripts-and-generate-metadata.py" exec-package-scripts-and-generate-metadata
-    newexe "${FILESDIR}/check-unwanted-pythons.py" check-unwanted-pythons
+    newexe "${FILESDIR}/unmerge-masked-packages.sh" unmerge-masked-packages
+    newexe "${FILESDIR}/check-unwanted-pythons.py" check-unwanted-pythons # will be deprecated
     newexe "${FILESDIR}/with-mysql.py" with-mysql
 }
