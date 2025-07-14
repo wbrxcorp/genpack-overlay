@@ -11,6 +11,7 @@ KEYWORDS="amd64 x86 arm64 riscv"
 
 RDEPEND="
 	sys-apps/systemd
+    sys-auth/seatd[server]
 	dev-libs/weston
 "
 
