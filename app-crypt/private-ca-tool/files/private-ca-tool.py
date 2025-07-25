@@ -5,7 +5,7 @@ import os,subprocess,logging,argparse
 CA_KEY = '/etc/ssl/private/ca.key'
 CA_CERT = '/usr/local/share/ca-certificates/ca.crt'
 
-def create(overwrite=False):
+def create(days=3650, overwrite=False):
     if not overwrite and os.path.exists(CA_CERT):
         logging.info(f"CA certificate {CA_CERT} already exists. Use --overwrite to recreate.")
         return
@@ -13,7 +13,7 @@ def create(overwrite=False):
     os.makedirs(os.path.dirname(CA_CERT), exist_ok=True)
     subprocess.run([
         'openssl', 'req', '-x509', '-newkey', 'rsa:4096',
-        '-keyout', CA_KEY, '-out', CA_CERT, '-days', '3650',
+        '-keyout', CA_KEY, '-out', CA_CERT, '-days', str(days),
         '-nodes', '-subj', '/C=JP/ST=Tokyo/O=WBRXCORP/CN=walbrix.com'
     ], check=True)
     subprocess.run(['update-ca-certificates'], check=True)
@@ -63,6 +63,7 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest='command', required=True)
     # create command
     create_parser = subparsers.add_parser('create', help='Create a new CA certificate')
+    create_parser.add_argument('--days', type=int, default=3650, help='Validity period of the CA certificate in days')
     create_parser.add_argument('--overwrite', action='store_true', help='Overwrite existing CA certificate')
     # generate-server-cert command
     gen_parser = subparsers.add_parser('generate-server-cert', help='Generate a server certificate')
@@ -81,7 +82,7 @@ if __name__ == "__main__":
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
     if args.command == 'create':
-        create(overwrite=args.overwrite)
+        create(days=args.days, overwrite=args.overwrite)
     elif args.command == 'generate-server-cert':
         generate_server_cert(
             cn=args.cn,
