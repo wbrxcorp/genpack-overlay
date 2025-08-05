@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import sys,os,subprocess
+import sys,os,subprocess,pwd
 
 def determine_interpreter(script):
     if os.access(script, os.X_OK): return None
@@ -46,7 +46,13 @@ def main():
             #else
             print(f"Executing build script in user subdirectory: /build.d/{subdir}/{script} as user {subdir}")
             interpreter = determine_interpreter(script_path)
-            subprocess.check_call([os.path.join("/build.d", subdir, script)] if interpreter is None else [interpreter, os.path.join("/build.d", subdir, script)], user=subdir)
+            user_info = pwd.getpwnam(subdir)
+            if user_info is None:
+                raise ValueError(f"User subdirectory does not correspond to a valid user: {subdir}")
+            #else
+            env = os.environ.copy()
+            env['HOME'] = user_info.pw_dir
+            subprocess.check_call([os.path.join("/build.d", subdir, script)] if interpreter is None else [interpreter, os.path.join("/build.d", subdir, script)], user=subdir, env=env)
 
 if __name__ == "__main__":
     try:
