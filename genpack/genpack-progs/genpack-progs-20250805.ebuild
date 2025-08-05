@@ -35,6 +35,7 @@ src_install() {
     newexe "${FILESDIR}/genpack-prepare.py" genpack-prepare # will be deprecated
     newexe "${FILESDIR}/list-pkg-files.py" list-pkg-files
     newexe "${FILESDIR}/exec-package-scripts-and-generate-metadata.py" exec-package-scripts-and-generate-metadata
+    newexe "${FILESDIR}/execute-artifact-build-scripts.py" execute-artifact-build-scripts
     newexe "${FILESDIR}/unmerge-masked-packages.sh" unmerge-masked-packages
     newexe "${FILESDIR}/rebuild-kernel-modules-if-necessary.sh" rebuild-kernel-modules-if-necessary
     newexe "${FILESDIR}/check-unwanted-pythons.py" check-unwanted-pythons # will be deprecated
