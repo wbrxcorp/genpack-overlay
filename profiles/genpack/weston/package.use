@@ -1,0 +1,16 @@
+#disable gui support to avoid pulling qt5 deps
+app-i18n/mozc fcitx5 -gui
+
+#allow system shutdown/reboot from greetd
+sys-apps/systemd policykit
+
+#enable some mesa features
+media-libs/mesa vulkan vaapi
+x11-apps/mesa-progs gles2 vulkan
+
+#enable X for some packages to run chrome/electron
+media-libs/libglvnd X
+x11-libs/cairo X
+media-libs/libepoxy X
+x11-libs/gtk+ X
+

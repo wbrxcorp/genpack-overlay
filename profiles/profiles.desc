@@ -1,0 +1,4 @@
+amd64 genpack/amd64 stable
+amd64 genpack/amd64/paravirt stable
+amd64 genpack/amd64/weston stable
+amd64 genpack/amd64/weston/paravirt stable

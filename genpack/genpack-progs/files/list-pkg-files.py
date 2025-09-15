@@ -4,11 +4,31 @@ from pathlib import Path
 
 import portage
 from portage.dbapi import vartree
+from portage._sets import load_default_config
+from portage.dep import dep_getkey
 
 vt = vartree.vartree()
 api = vartree.vardbapi()
 
 def get_package_set(set_name):
+    pkgs = []
+    setconfig  = load_default_config(portage.settings, portage.db[portage.root])
+    sets_map   = setconfig.getSets()
+    if set_name not in sets_map:
+        print(f"# Warning: set {set_name} not found", file=sys.stderr)
+        return pkgs
+    #else
+    the_set = sets_map[set_name]
+    atoms = (the_set.getAtoms() if hasattr(the_set, "getAtoms")
+             else getattr(the_set, "atoms", list(the_set)))
+    for atom in atoms:
+        a = atom.lstrip('!')
+        cp = dep_getkey(a)  # e.g. '>=sys-apps/baselayout-2' -> 'sys-apps/baselayout'
+        pkgs.append(cp)
+
+    return pkgs
+
+def get_package_set_bak(set_name): # old version, not using portage._sets
     pkgs = []
     with open(os.path.join("/etc/portage/sets", set_name)) as f:
         for line in f:
@@ -167,7 +187,7 @@ def print_all_files_of_all_packages(pkgs, devel):
 
 def main(dep_removals={}):
     devel = os.path.isfile("/etc/portage/sets/genpack-devel")
-    pkg_sets = ["@genpack-runtime"]
+    pkg_sets = ["@profile", "@genpack-runtime"]
     if devel:
         pkg_sets.append("@genpack-devel")
     pkgs_with_deps = scan_pkg(pkg_sets, dep_removals)
