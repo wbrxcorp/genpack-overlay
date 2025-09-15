@@ -17,10 +17,16 @@ RDEPEND="
     x11-apps/mesa-progs
     dev-util/vulkan-tools
 "
-
+PDEPEND="
+    media-libs/vips
+    gnome-base/librsvg
+"
 S="${WORKDIR}"
 
 src_install() {
+    insinto /etc/skel/.config
+    doins "${FILESDIR}"/weston.ini
+
     insinto /etc/skel/.config/fcitx5
     newins "${FILESDIR}"/fcitx5-config config
     newins "${FILESDIR}"/fcitx5-profile profile
@@ -35,4 +41,19 @@ src_install() {
         exeinto /usr/lib/genpack/package-scripts/gui-libs/greetd
         doexe "${FILESDIR}"/setup-greetd.sh
     fi
+
+    exeinto /usr/lib/genpack/package-scripts/www-client/google-chrome
+    doexe "${FILESDIR}"/add-chrome-to-weston-ini.sh
+
+    exeinto /usr/lib/genpack/package-scripts/app-editors/vscode
+    doexe "${FILESDIR}"/add-vscode-to-weston-ini.sh
+
+    exeinto /usr/lib/genpack/package-scripts/x11-terms/ghostty
+    doexe "${FILESDIR}"/add-ghostty-to-weston-ini.sh
+
+    exeinto /usr/lib/genpack/package-scripts/app-editors/gnome-text-editor
+    doexe "${FILESDIR}"/add-gnome-text-editor-to-weston-ini.sh
+
+    exeinto /usr/lib/genpack/package-scripts/media-gfx/gimp
+    doexe "${FILESDIR}"/add-gimp-to-weston-ini.sh
 }
