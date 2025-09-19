@@ -80,5 +80,6 @@ src_install() {
     doexe "${FILESDIR}"/weston-ini/remmina.sh
 
     exeinto /usr/lib/genpack/package-scripts/net-analyzer/wireshark
+    doexe "${FILESDIR}"/wireshark-dumpcap-cap-eip.sh
     doexe "${FILESDIR}"/weston-ini/wireshark.sh
 }
