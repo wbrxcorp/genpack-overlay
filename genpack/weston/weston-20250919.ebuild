@@ -31,9 +31,6 @@ src_install() {
     newins "${FILESDIR}"/fcitx5-config config
     newins "${FILESDIR}"/fcitx5-profile profile
 
-    exeinto /usr/lib/genpack/package-scripts/app-i18n/fcitx
-    doexe "${FILESDIR}"/add-fcitx-to-weston-ini.sh
-
     exeinto /usr/lib/genpack/package-scripts/media-fonts/noto-cjk
     doexe "${FILESDIR}"/enable-noto-cjk.sh
 
@@ -42,18 +39,39 @@ src_install() {
         doexe "${FILESDIR}"/setup-greetd.sh
     fi
 
+    exeinto /usr/lib/genpack/package-scripts/app-i18n/fcitx
+    doexe "${FILESDIR}"/weston-ini/fcitx.sh
+
     exeinto /usr/lib/genpack/package-scripts/www-client/google-chrome
-    doexe "${FILESDIR}"/add-chrome-to-weston-ini.sh
+    doexe "${FILESDIR}"/weston-ini/chrome.sh
 
     exeinto /usr/lib/genpack/package-scripts/app-editors/vscode
-    doexe "${FILESDIR}"/add-vscode-to-weston-ini.sh
+    doexe "${FILESDIR}"/weston-ini/vscode.sh
 
     exeinto /usr/lib/genpack/package-scripts/x11-terms/ghostty
-    doexe "${FILESDIR}"/add-ghostty-to-weston-ini.sh
+    doexe "${FILESDIR}"/weston-ini/ghostty.sh
 
     exeinto /usr/lib/genpack/package-scripts/app-editors/gnome-text-editor
-    doexe "${FILESDIR}"/add-gnome-text-editor-to-weston-ini.sh
+    doexe "${FILESDIR}"/weston-ini/gnome-text-editor.sh
 
     exeinto /usr/lib/genpack/package-scripts/media-gfx/gimp
-    doexe "${FILESDIR}"/add-gimp-to-weston-ini.sh
+    doexe "${FILESDIR}"/weston-ini/gimp.sh
+
+    exeinto /usr/lib/genpack/package-scripts/mail-client/evolution
+    doexe "${FILESDIR}"/weston-ini/evolution.sh
+
+    exeinto /usr/lib/genpack/package-scripts/app-office/libreoffice
+    doexe "${FILESDIR}"/weston-ini/libreoffice.sh
+
+    exeinto /usr/lib/genpack/package-scripts/gnome-base/nautilus
+    doexe "${FILESDIR}"/weston-ini/nautilus.sh
+
+    exeinto /usr/lib/genpack/package-scripts/media-video/vlc
+    doexe "${FILESDIR}"/weston-ini/vlc.sh
+
+    exeinto /usr/lib/genpack/package-scripts/media-sound/rhythmbox
+    doexe "${FILESDIR}"/weston-ini/rhythmbox.sh
+
+    exeinto /usr/lib/genpack/package-scripts/net-misc/remmina
+    doexe "${FILESDIR}"/weston-ini/remmina.sh
 }

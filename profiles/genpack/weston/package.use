@@ -1,16 +1,63 @@
-#disable gui support to avoid pulling qt5 deps
-app-i18n/mozc fcitx5 -gui
-
 #allow system shutdown/reboot from greetd
 sys-apps/systemd policykit
 
-#enable some mesa features
+#enable modern mesa features
 media-libs/mesa vulkan vaapi
 x11-apps/mesa-progs gles2 vulkan
+
+#features for mozc/fcitx
+app-i18n/mozc fcitx5
+dev-qt/qtbase opengl vulkan
 
 #enable X for some packages to run chrome/electron
 media-libs/libglvnd X
 x11-libs/cairo X
 media-libs/libepoxy X
 x11-libs/gtk+ X
+
+#features for VS Code
+app-crypt/gcr gtk
+
+#features for ghostty
+edia-libs/freetype harfbuzz
+
+#features for gimp
+media-gfx/gimp webp wmf
+app-text/poppler cairo
+media-libs/gegl introspection lcms cairo
+media-libs/babl introspection lcms
+dev-python/pycairo X # cairo[X] requests to pycairo to be built with X support
+
+#features for evolution(email client)
+dev-libs/glib dbus
+media-libs/harfbuzz icu
+media-libs/gst-plugins-base opengl
+
+#features for LibreOffice
+dev-libs/xmlsec nss
+
+#features for nautilus
+dev-libs/libportal gtk
+media-libs/freetype harfbuzz
+media-plugins/gst-plugins-gtk opengl
+
+#features for EOG(eye of Gnome image viewer)
+x11-libs/gdk-pixbuf jpeg
+
+#features for vlc
+media-video/vlc alsa gstreamer matroska mp3 mpeg ogg opus png speex v4l vpx x264 x265
+dev-qt/qtwayland vulkan
+dev-qt/qtgui vulkan egl dbus
+app-i18n/fcitx-qt qt5 X # fcitx-qt[qt5] needs X use flag
+
+#features for gstreamer
+media-plugins/gst-plugins-meta aac alsa mp3 ogg opus v4l vorbis wavpack x264
+media-libs/gst-plugins-base alsa
+
+#features for remmina
+net-misc/remmina vnc rdp spice
+dev-libs/libdbusmenu gtk3
+media-plugins/grilo-plugins tracker
+
+
 

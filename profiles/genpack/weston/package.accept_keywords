@@ -1,1 +1,7 @@
+#greeter
 gui-apps/tuigreet
+
+#only gimp >= 3.0 supports wayland
+media-gfx/gimp
+media-libs/babl
+media-libs/gegl
