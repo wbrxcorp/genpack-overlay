@@ -43,6 +43,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/app-i18n/fcitx
     doexe "${FILESDIR}"/weston-ini/fcitx.sh
 
+    exeinto /usr/lib/genpack/package-scripts/gui-apps/wl-clipboard
+    doexe "${FILESDIR}"/alter-wl-clipboard.sh
+
     exeinto /usr/lib/genpack/package-scripts/www-client/google-chrome
     doexe "${FILESDIR}"/weston-ini/chrome.sh
 
