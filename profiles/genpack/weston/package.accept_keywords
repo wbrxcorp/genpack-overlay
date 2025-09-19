@@ -5,3 +5,8 @@ gui-apps/tuigreet
 media-gfx/gimp
 media-libs/babl
 media-libs/gegl
+
+#papers(gnome document viewer)
+app-text/papers
+gui-libs/gtk # needs newer gtk
+
