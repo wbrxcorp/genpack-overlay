@@ -11,6 +11,7 @@ RDEPEND="
     dev-libs/weston
     app-i18n/mozc
     app-i18n/fcitx-gtk
+    gui-apps/wl-clipboard
     greeter? ( gui-apps/tuigreet )
     media-fonts/noto-cjk
     media-fonts/noto-emoji
