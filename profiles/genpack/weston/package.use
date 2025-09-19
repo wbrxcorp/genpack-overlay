@@ -8,6 +8,7 @@ x11-apps/mesa-progs gles2 vulkan
 #features for mozc/fcitx
 app-i18n/mozc fcitx5
 dev-qt/qtbase opengl vulkan
+dev-qt/qttools opengl
 
 #enable X for some packages to run chrome/electron
 media-libs/libglvnd X
