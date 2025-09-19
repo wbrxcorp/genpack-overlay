@@ -60,5 +60,6 @@ net-misc/remmina vnc rdp spice
 dev-libs/libdbusmenu gtk3
 media-plugins/grilo-plugins tracker
 
-
-
+#features for wireshark
+sys-libs/zlib minizip
+dev-qt/qtmultimedia vulkan opengl

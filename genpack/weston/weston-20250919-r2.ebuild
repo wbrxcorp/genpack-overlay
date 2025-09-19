@@ -78,4 +78,7 @@ src_install() {
 
     exeinto /usr/lib/genpack/package-scripts/net-misc/remmina
     doexe "${FILESDIR}"/weston-ini/remmina.sh
+
+    exeinto /usr/lib/genpack/package-scripts/net-analyzer/wireshark
+    doexe "${FILESDIR}"/weston-ini/wireshark.sh
 }
