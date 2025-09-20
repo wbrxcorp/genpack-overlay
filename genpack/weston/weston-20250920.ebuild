@@ -82,4 +82,10 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/net-analyzer/wireshark
     doexe "${FILESDIR}"/wireshark-dumpcap-cap-eip.sh
     doexe "${FILESDIR}"/weston-ini/wireshark.sh
+
+    exeinto /usr/lib/genpack/package-scripts/media-gfx/inkscape
+    doexe "${FILESDIR}"/weston-ini/inkscape.sh
+
+    exeinto /usr/lib/genpack/package-scripts/gnome-extra/gnome-system-monitor
+    doexe "${FILESDIR}"/weston-ini/gnome-system-monitor.sh
 }

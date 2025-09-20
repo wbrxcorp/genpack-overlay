@@ -63,3 +63,9 @@ media-plugins/grilo-plugins tracker
 #features for wireshark
 sys-libs/zlib minizip
 dev-qt/qtmultimedia vulkan opengl
+
+#features for inkscape
+dev-python/pillow tiff webp
+media-libs/tiff jpeg
+dev-cpp/gtkmm X # because of gtk+[X]
+dev-cpp/cairomm X # because of cairo[X]
