@@ -1,2 +1,3 @@
 #!/bin/sh
+fcitx5 -dr --disable wayland &  # somehow fcitx5 doesn't start with wayland addon
 exec systemctl --user import-environment WAYLAND_DISPLAY

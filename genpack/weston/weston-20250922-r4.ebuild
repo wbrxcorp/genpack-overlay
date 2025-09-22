@@ -9,6 +9,8 @@ IUSE="+greeter"
 
 RDEPEND="
     dev-libs/weston
+    app-misc/wayland-utils
+    sys-apps/xdg-desktop-portal-gtk
     app-i18n/mozc
     app-i18n/fcitx-gtk
     gui-apps/wl-clipboard
@@ -46,8 +48,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
     doexe "${FILESDIR}"/weston-ini/autolaunch.sh
 
-    exeinto /usr/lib/genpack/package-scripts/app-i18n/fcitx
-    doexe "${FILESDIR}"/weston-ini/fcitx.sh
+    # replaced with autolaunch
+    #exeinto /usr/lib/genpack/package-scripts/app-i18n/fcitx
+    #doexe "${FILESDIR}"/weston-ini/fcitx.sh
 
     exeinto /usr/lib/genpack/package-scripts/gui-apps/wl-clipboard
     doexe "${FILESDIR}"/alter-wl-clipboard.sh
