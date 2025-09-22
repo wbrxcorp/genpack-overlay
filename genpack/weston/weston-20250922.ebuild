@@ -40,6 +40,12 @@ src_install() {
         doexe "${FILESDIR}"/setup-greetd.sh
     fi
 
+    exeinto /usr/bin
+    doexe "${FILESDIR}"/weston-init
+
+    exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
+    doexe "${FILESDIR}"/weston-ini/autolaunch.sh
+
     exeinto /usr/lib/genpack/package-scripts/app-i18n/fcitx
     doexe "${FILESDIR}"/weston-ini/fcitx.sh
 
@@ -88,4 +94,7 @@ src_install() {
 
     exeinto /usr/lib/genpack/package-scripts/gnome-extra/gnome-system-monitor
     doexe "${FILESDIR}"/weston-ini/gnome-system-monitor.sh
+
+    exeinto /usr/lib/genpack/package-scripts/app-crypt/seahorse
+    doexe "${FILESDIR}"/weston-ini/seahorse.sh
 }

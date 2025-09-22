@@ -1,0 +1,2 @@
+#!/bin/sh
+exec systemctl --user import-environment WAYLAND_DISPLAY
