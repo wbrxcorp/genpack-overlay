@@ -10,7 +10,6 @@ IUSE="+greeter"
 RDEPEND="
     dev-libs/weston
     app-misc/wayland-utils
-    sys-apps/xdg-desktop-portal-gtk
     app-i18n/mozc
     app-i18n/fcitx-gtk
     gui-apps/wl-clipboard
