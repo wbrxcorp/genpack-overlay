@@ -39,6 +39,10 @@ src_install() {
 	insinto /usr/lib/genpack-init
 	doins "${FILESDIR}/autologin.py" "${FILESDIR}/hostname.py" "${FILESDIR}/install_memtest86.py" "${FILESDIR}/swapfile.py"
 
+	# enable getty@tty1
+	exeinto /usr/lib/genpack/package-scripts/sys-apps/systemd
+	doexe "${FILESDIR}/enable-getty-at-tty1.sh"
+
 	# shutdown script
 	insinto /usr/lib/systemd/system
 	doins "${FILESDIR}/cleanup-boottimetxt.service"
