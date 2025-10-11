@@ -186,7 +186,7 @@ def print_all_files_of_all_packages(pkgs, devel):
                     print(file_to_append)
 
 def main(dep_removals={}):
-    devel = os.path.isfile("/etc/portage/sets/genpack-devel")
+    devel = os.path.isfile("/usr/bin/genpack-devel")
     pkg_sets = ["@profile", "@genpack-runtime"]
     if devel:
         pkg_sets.append("@genpack-devel")
