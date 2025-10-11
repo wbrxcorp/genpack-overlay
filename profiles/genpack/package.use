@@ -1,0 +1,6 @@
+sys-libs/glibc audit # Intentionally causing glibc to be rebuilt
+sys-kernel/installkernel dracut  # genpack depends on dracut
+sys-fs/squashfs-tools lz4 lzma lzo xattr zstd # genpack uses lz4, lzma, lzo and zstd compression for squashfs
+app-crypt/libb2 -openmp # openmp support brings gcc dependency, which is not generally needed
+dev-lang/perl minimal
+app-editors/vim minimal
