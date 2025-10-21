@@ -45,9 +45,23 @@ RDEPEND="
 
 S="${WORKDIR}"
 
-src_install() {
-    # script for genpack
+src_prepare() {
+    default
+    # files/foo.cpp -> ${S}/foo.cpp にコピー
+    cp "${FILESDIR}"/shutdown.cpp "${S}"/ || die
+}
 
+src_compile() {
+    # 必要なら CPPFLAGS を前に、LDFLAGS を後ろに
+    g++ shutdown.cpp -o genpack-shutdown -static || die "compile failed"
+}
+
+src_install() {
+    # install shutdown program
+    exeinto /usr/libexec
+    doexe genpack-shutdown
+
+    # script for genpack
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
     doexe "${FILESDIR}/copyup-fundamentals.sh"
 

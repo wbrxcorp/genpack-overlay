@@ -81,9 +81,6 @@ else
 	exit 0 # unknown root= type
 fi
 
-[ -e /run/initramfs/ro ] || mkdir -m 0755 -p /run/initramfs/ro
-mount -o ro -t squashfs "$GENPACK_IMAGE" /run/initramfs/ro || die "Failed to mount RO layer"
-
 [ -e /run/initramfs/rw ] || mkdir -m 0755 -p /run/initramfs/rw
 if getargbool 0 genpack.transient || [[ $transient ]]; then
 	info "Transient mode. skipping data partition mount"
@@ -96,6 +93,23 @@ if ! ismounted /run/initramfs/rw; then
 	info "Data partition not mounted.  Proceeding with tmpfs"
 	mount -t tmpfs tmpfs /run/initramfs/rw || die "Failed to mount tmpfs as data partition"
 fi
+
+[ -e /run/initramfs/ro ] || mkdir -m 0755 -p /run/initramfs/ro
+
+if [ ! -e "$GENPACK_IMAGE" ]; then
+	if [ -f /run/initramfs/rw/system ]; then
+		info "system.img not found in boot partition.  Using one from data partition instead"
+		GENPACK_IMAGE="/run/initramfs/rw/system"
+		if [ -f /run/initramfs/rw/system.cur ]; then
+			info "Found system.cur in data partition.  Renaming it to system.old"
+			mv /run/initramfs/rw/system.cur /run/initramfs/rw/system.old
+		fi
+	else
+		die "genpack image not found: $GENPACK_IMAGE"
+	fi
+fi
+
+mount -o ro -t squashfs "$GENPACK_IMAGE" /run/initramfs/ro || die "Failed to mount RO layer"
 
 GENPACK_OVERLAY_ROOT="/run/initramfs/rw/root"
 GENPACK_OVERLAY_WORK="/run/initramfs/rw/work"
@@ -115,6 +129,12 @@ fi
 GENPACK_RW_USR="$GENPACK_OVERLAY_ROOT"/usr
 if [ -e /run/initramfs/ro/usr -a -e "$GENPACK_RW_USR" ]; then
 	/usr/bin/touch -r /run/initramfs/ro/usr $GENPACK_RW_USR
+fi
+
+# install shutdown program
+mount -o remount,exec /run
+if [ -x /run/initramfs/ro/usr/libexec/genpack-shutdown ]; then
+        cp -a /run/initramfs/ro/usr/libexec/genpack-shutdown /run/initramfs/shutdown
 fi
 
 mount -t overlay overlay -o lowerdir=/run/initramfs/ro,upperdir=$GENPACK_OVERLAY_ROOT,workdir=$GENPACK_OVERLAY_WORK $NEWROOT || die "Failed to mount overlay root"
