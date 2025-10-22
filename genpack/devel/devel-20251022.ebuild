@@ -8,6 +8,7 @@ KEYWORDS="amd64 x86 arm64 riscv"
 IUSE=""
 
 RDEPEND="
+    sys-devel/binutils
     sys-devel/gcc
     dev-debug/gdb
 "
