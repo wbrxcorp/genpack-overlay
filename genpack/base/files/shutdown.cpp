@@ -176,6 +176,16 @@ int main(int argc, char* argv[])
     }
 
     if (std::filesystem::is_directory("/boot_moved")) {
+        if (std::filesystem::exists("/boot_moved/boottime.txt")) {
+            if (debug) {
+                std::cout << "Removing /boot_moved/boottime.txt" << std::endl;
+            }
+            // remount as rw to remove boottime.txt
+            if (mount(nullptr, "/boot_moved", "", MS_REMOUNT, nullptr) != 0) {
+                std::cerr << "Failed to remount /boot_moved as rw" << std::endl;
+            }
+            std::filesystem::remove("/boot_moved/boottime.txt");
+        }
         if (umount("/boot_moved") == 0) {
             std::cout << "Unmounted /boot_moved" << std::endl;
         } else {

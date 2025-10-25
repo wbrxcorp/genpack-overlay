@@ -44,13 +44,6 @@ src_install() {
 	exeinto /usr/lib/genpack/package-scripts/sys-apps/systemd
 	doexe "${FILESDIR}/enable-getty-at-tty1.sh"
 
-	# shutdown script
-	insinto /usr/lib/systemd/system
-	doins "${FILESDIR}/cleanup-boottimetxt.service"
-
-	# script for genpack
-	insinto /usr/lib/genpack/systemimg
-	doins "${FILESDIR}/grub.cfg"
 	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
 	doexe "${FILESDIR}/systemimg.sh"
 
