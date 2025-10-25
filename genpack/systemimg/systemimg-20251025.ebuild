@@ -10,6 +10,7 @@ RDEPEND="
 	genpack/base
 	!genpack/paravirt
 	genpack/genpack-install
+	sys-apps/kbd
 	baremetal? ( 
 		|| ( sys-kernel/linux-firmware sys-firmware/raspberrypi-wifi-ucode )
 		sys-fs/lsscsi
