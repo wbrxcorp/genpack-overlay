@@ -1,14 +1,13 @@
 EAPI=8
 
-inherit autotools systemd
+inherit git-r3 autotools systemd
 
-DESCRIPTION="Monitor video signals from cameras, perform actions when movement is detected"
+DESCRIPTION="Motion, a software motion detector (live ebuild tracking upstream master)"
 HOMEPAGE="https://motion-project.github.io/"
+EGIT_REPO_URI="https://github.com/Motion-Project/motion.git"
+EGIT_BRANCH="master"
 
-SRC_URI="https://github.com/Motion-Project/${PN}/archive/refs/tags/release-${PV}.tar.gz"
-S="${WORKDIR}/${PN}-release-${PV}"
-
-LICENSE="GPL-3"
+LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
 IUSE="+webp +opencv +fftw +sqlite pulseaudio alsa mysql mariadb postgres"
@@ -36,6 +35,7 @@ src_prepare() {
 
 src_configure() {
     econf \
+        --sysconfdir=/etc --localstatedir=/var \
         $(use_with opencv) \
         $(use_with fftw fftw3) \
         $(use_with sqlite sqlite3) \
@@ -53,6 +53,14 @@ src_install() {
                 docdir=/usr/share/doc/${PF} \
                 examplesdir=/usr/share/doc/${PF}/examples \
                 install
+
+        insinto /etc/motion
+        newins data/motion-dist.conf motion.conf
+
+        keepdir /var/lib/motion/media
+        fowners -R motion:motion /var/lib/motion
+        fperms 0755 /var/lib/motion
+        fperms 0775 /var/lib/motion/media
 
         systemd_newunit "${FILESDIR}/${PN}.service" "${PN}.service"
 }

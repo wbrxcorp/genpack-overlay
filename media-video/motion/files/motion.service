@@ -4,7 +4,7 @@ After=local-fs.target network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/motionplus -n -c /etc/motionplus/motionplus.conf
+ExecStart=/usr/bin/motion -n -c /etc/motion/motion.conf
 StandardError=null
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
@@ -14,7 +14,7 @@ User=motion
 Group=motion
 
 UMask=007
-WorkingDirectory=-/var/lib/motionplus
+WorkingDirectory=-/var/lib/motion
 
 [Install]
 WantedBy=multi-user.target

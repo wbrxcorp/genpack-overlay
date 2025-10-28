@@ -11,7 +11,7 @@ S="${WORKDIR}/${PN}-release-${PV}"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64 arm64 riscv"
-IUSE="+webp +opencv +fftw +sqlite pulseaudio alsa mysql mariadb postgres"
+IUSE="+webp +sqlite pulseaudio alsa mysql mariadb postgres"
 
 RDEPEND="
     acct-group/motion
@@ -20,8 +20,6 @@ RDEPEND="
     media-libs/libv4l
     net-libs/libmicrohttpd
 
-    opencv? ( media-libs/opencv )
-    fftw? ( sci-libs/fftw:3.0 )
     mariadb? ( dev-db/mariadb-connector-c )
     mysql? ( dev-db/mysql-connector-c )
     postgres? ( dev-db/postgresql:= )
@@ -36,15 +34,11 @@ src_prepare() {
 
 src_configure() {
     econf \
-        $(use_with opencv) \
-        $(use_with fftw fftw3) \
         $(use_with sqlite sqlite3) \
         $(use_with mysql) \
         $(use_with mariadb) \
         $(use_with postgres pgsql) \
-        $(use_with webp) \
-        $(use_with pulseaudio pulse) \
-        $(use_with alsa)
+        $(use_with webp)
 }
 
 src_install() {
@@ -54,5 +48,5 @@ src_install() {
                 examplesdir=/usr/share/doc/${PF}/examples \
                 install
 
-        systemd_newunit "${S}/data/${PN}.service" "${PN}.service"
+        systemd_newunit "${FILESDIR}/${PN}.service" "${PN}.service"
 }
