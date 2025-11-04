@@ -95,6 +95,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/dev-db/postgresql
     doexe "${FILESDIR}/postgresql.sh"
 
+    exeinto /usr/lib/genpack/package-scripts/dev-lang/php
+    doexe "${FILESDIR}/php.sh"
+
     exeinto /usr/lib/genpack/package-scripts/sys-devel/gcc
     doexe "${FILESDIR}/gcc.sh"
 
