@@ -1,3 +1,2 @@
-# Python 3.13 only
+# Python up to 3.13 only
 >=dev-lang/python-3.14
-<dev-lang/python-3.13
