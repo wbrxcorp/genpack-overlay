@@ -2,7 +2,7 @@
 sys-apps/systemd policykit
 
 #enable modern mesa features
-media-libs/mesa vulkan vaapi
+media-libs/mesa X vulkan vaapi
 x11-apps/mesa-progs gles2 vulkan
 
 #features for mozc/fcitx
@@ -40,6 +40,7 @@ dev-libs/xmlsec nss
 
 #features for nautilus
 dev-libs/libportal gtk
+gui-libs/gtk X
 media-libs/freetype harfbuzz
 media-plugins/gst-plugins-gtk opengl
 
