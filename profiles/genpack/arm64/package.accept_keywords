@@ -1,0 +1,2 @@
+app-admin/eclean-kernel
+dev-python/pymountboot # needed by eclean-kernel
