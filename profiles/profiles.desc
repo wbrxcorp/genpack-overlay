@@ -4,5 +4,6 @@ amd64 genpack/amd64/systemimg stable
 amd64 genpack/amd64/baremetal stable
 amd64 genpack/amd64/weston/paravirt stable
 amd64 genpack/amd64/gnome/baremetal stable
+arm64 genpack/arm64/paravirt stable
 arm64 genpack/arm64/systemimg stable
 arm64 genpack/arm64/baremetal stable
