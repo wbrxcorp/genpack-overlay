@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="Paravirt virtual machine frontend"
 HOMEPAGE="https://github.com/shimarin/vm"
 EGIT_REPO_URI="https://github.com/shimarin/vm.git"
-EGIT_COMMIT="ae3bd89ee190ac33974169ad88518eb2412d1843"
+EGIT_COMMIT="75cf1e79d162fc7704a3d1c873065f05e7ebbac9"
 
 LICENSE="MIT"
 SLOT="0"
@@ -19,6 +19,7 @@ RDEPEND="
     app-emulation/qemu app-emulation/virtiofsd
     >=dev-libs/iniparser-4.2.5 sys-apps/systemd sys-apps/util-linux 
     sys-fs/squashfuse[lz4,lzma,lzo,zlib,zstd]
+    net-misc/socat
     dev-cpp/libxmlpp
 "
 src_install() {
