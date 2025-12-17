@@ -23,6 +23,7 @@ RDEPEND="
 		sys-apps/usb_modeswitch
 		sys-power/cpupower
 		sys-apps/smartmontools
+		sys-apps/nvme-cli
 		sys-apps/hdparm
 		sys-apps/ethtool
 		amd64? ( 
