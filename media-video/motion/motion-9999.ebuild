@@ -19,7 +19,7 @@ RDEPEND="
     media-libs/libv4l
     net-libs/libmicrohttpd
 
-    opencv? ( media-libs/opencv )
+    opencv? ( media-libs/opencv[contribdnn] )
     fftw? ( sci-libs/fftw:3.0 )
     mariadb? ( dev-db/mariadb-connector-c )
     mysql? ( dev-db/mysql-connector-c )
