@@ -45,6 +45,10 @@ src_install() {
 	exeinto /usr/lib/genpack/package-scripts/sys-apps/systemd
 	doexe "${FILESDIR}/enable-getty-at-tty1.sh"
 
+	# enable serial getty@ttyS0 only if ttyS0 is usable
+	insinto /etc/systemd/system/serial-getty@ttyS0.service.d
+	doins "${FILESDIR}/10-disable-broken-tty.conf"
+
 	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
 	doexe "${FILESDIR}/systemimg.sh"
 
