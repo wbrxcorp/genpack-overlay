@@ -113,6 +113,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/dev-lang/ruby
     doexe "${FILESDIR}/ruby.sh"
 
+    exeinto /usr/lib/genpack/package-scripts/media-fonts/noto-cjk
+    doexe "${FILESDIR}/noto-cjk.sh"
+
     exeinto /usr/lib/genpack/package-scripts/mail-mta/nullmailer
     doexe "${FILESDIR}/nullmailer.sh"
 

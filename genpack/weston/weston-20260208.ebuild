@@ -33,9 +33,6 @@ src_install() {
     newins "${FILESDIR}"/fcitx5-config config
     newins "${FILESDIR}"/fcitx5-profile profile
 
-    exeinto /usr/lib/genpack/package-scripts/media-fonts/noto-cjk
-    doexe "${FILESDIR}"/enable-noto-cjk.sh
-
     if use greeter ; then
         exeinto /usr/lib/genpack/package-scripts/gui-libs/greetd
         doexe "${FILESDIR}"/setup-greetd.sh

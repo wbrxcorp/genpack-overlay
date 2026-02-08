@@ -20,8 +20,3 @@ RDEPEND="
 "
 
 S="${WORKDIR}"
-
-src_install() {
-    exeinto /usr/lib/genpack/package-scripts/media-fonts/noto-cjk
-    doexe "${FILESDIR}"/enable-noto-cjk.sh
-}
