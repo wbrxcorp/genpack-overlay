@@ -9,11 +9,12 @@ EGIT_COMMIT="4246185bb8c5b32f809fa482a28aa5c39caf5b3e"
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
 
-DEPEND="dev-cpp/argparse sys-fs/mtools sys-boot/grub"
+DEPEND="dev-cpp/argparse sys-boot/grub"
 RDEPEND="
 	sys-libs/zlib[minizip]
 	sys-block/parted
 	sys-fs/dosfstools
+	sys-fs/mtools
 	dev-libs/libisoburn
 	sys-fs/btrfs-progs
 	app-arch/unzip
