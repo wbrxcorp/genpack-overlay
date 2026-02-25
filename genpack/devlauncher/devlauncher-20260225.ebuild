@@ -17,6 +17,7 @@ RDEPEND="
     media-fonts/noto-emoji
     dev-util/claude-code
     <x11-terms/ghostty-1.2
+    gui-libs/gtk[wayland]
     media-sound/alsa-utils
     app-admin/sudo
     sys-process/psmisc
