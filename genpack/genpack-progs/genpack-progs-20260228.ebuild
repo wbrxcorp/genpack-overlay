@@ -1,10 +1,8 @@
 EAPI=8
-inherit git-r3 genpack-ignore
+inherit genpack-ignore
 
 DESCRIPTION="Support tools for genpack"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-progs"
-EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-progs.git"
-EGIT_COMMIT="be3179c"
 
 LICENSE="MIT"
 SLOT="0"
@@ -19,26 +17,22 @@ RDEPEND="
     app-admin/eclean-kernel
 "
 
-src_compile() {
-    emake || die "emake failed"
+src_unpack() {
+    mkdir -p "${S}"
 }
 
 src_install() {
-    emake DESTDIR="${D}" install || die "emake install failed"
-    # genpack-install is moved to separate package
-    rm -f "${D}/usr/bin/genpack-install" "${D}/usr/bin/install-cloudflared"
-    # with-mysql is moved to this ebuild
-    rm -f "${D}/usr/local/sbin/with-mysql"
-
     exeinto "/usr/bin"
-    newexe "${FILESDIR}/copyup-packages.py" copyup-packages # will be deprecated
-    newexe "${FILESDIR}/genpack-prepare.py" genpack-prepare # will be deprecated
+    newexe "${FILESDIR}/recursive-touch.py" recursive-touch
+    newexe "${FILESDIR}/download.py" download
+    newexe "${FILESDIR}/get-rpm-download-url.py" get-rpm-download-url
+    newexe "${FILESDIR}/get-github-download-url.py" get-github-download-url
+    newexe "${FILESDIR}/findelf.py" findelf
     newexe "${FILESDIR}/list-pkg-files.py" list-pkg-files
     newexe "${FILESDIR}/exec-package-scripts-and-generate-metadata.py" exec-package-scripts-and-generate-metadata
     newexe "${FILESDIR}/execute-artifact-build-scripts.py" execute-artifact-build-scripts
     newexe "${FILESDIR}/unmerge-masked-packages.sh" unmerge-masked-packages
     newexe "${FILESDIR}/rebuild-kernel-modules-if-necessary.sh" rebuild-kernel-modules-if-necessary
     newexe "${FILESDIR}/remove-binpkg.py" remove-binpkg
-    newexe "${FILESDIR}/check-unwanted-pythons.py" check-unwanted-pythons # will be deprecated
     newexe "${FILESDIR}/with-mysql.py" with-mysql
 }
