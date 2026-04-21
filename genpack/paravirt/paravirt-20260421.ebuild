@@ -13,6 +13,7 @@ RDEPEND="
     app-emulation/qemu-guest-agent
     sys-libs/liburing
     net-misc/socat
+    net-misc/sock-forward
 "
 
 S="${WORKDIR}"

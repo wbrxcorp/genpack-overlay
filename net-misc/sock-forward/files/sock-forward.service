@@ -1,0 +1,11 @@
+[Unit]
+Description=VM service bridge (TCP %i -> vsock host)
+# This unit is part of the genpack toolchain. Run 'sock-forward' with no
+# arguments for an explanation of what this service does and how it works.
+
+[Service]
+ExecStart=/usr/bin/sock-forward %i
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

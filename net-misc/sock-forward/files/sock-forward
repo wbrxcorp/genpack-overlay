@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+import os, fcntl, struct, socket, sys
+
+if len(sys.argv) < 2:
+    print("""sock-forward -- guest-side vsock bridge, part of the genpack toolchain
+
+genpack is a toolchain for building and running minimal Linux virtual machine
+images. This script is installed inside a genpack-built paravirt VM to bridge
+a local TCP port to a Unix domain socket service running on the VM host.
+
+How it works:
+  The host runs a socat proxy that listens on a VSOCK port and forwards each
+  connection to a Unix domain socket (e.g. an AI channel or other IPC service).
+  This script reads the guest's own CID from /dev/vsock, then launches socat to
+  accept TCP connections on the given port and forward them to the host via VSOCK.
+
+Usage:
+  sock-forward <port>[:<offset>]
+
+    port    Local TCP port to listen on inside the guest.
+    offset  Index of the host-side service (0-based, default 0), corresponding
+            to the order of --sock-forward options passed to the vm command.
+
+  The VSOCK port used to reach the host is: guest_CID + offset
+
+This script is normally managed by systemd. To enable a bridge on port 8080:
+  systemctl enable --now sock-forward@8080.service
+
+For more information, see the genpack project:
+  https://github.com/wbrxcorp/genpack
+""")
+    sys.exit(0)
+
+fd = os.open("/dev/vsock", os.O_RDONLY)
+cid = struct.unpack("I", fcntl.ioctl(fd, socket.IOCTL_VM_SOCKETS_GET_LOCAL_CID, bytes(4)))[0]
+os.close(fd)
+arg = sys.argv[1].split(":")
+port, offset = arg[0], int(arg[1]) if len(arg) > 1 else 0
+os.execlp("socat", "socat", f"TCP-LISTEN:{port},fork,reuseaddr", f"VSOCK-CONNECT:2:{cid + offset}")
