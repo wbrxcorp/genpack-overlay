@@ -14,7 +14,13 @@ LLMNR=yes
 def is_avahi_enabled():
     return root_path("/etc/systemd/system/multi-user.target.wants/avahi-daemon.service").exists()
 
+def is_network_manager_enabled():
+    return root_path("/etc/systemd/system/multi-user.target.wants/NetworkManager.service").exists()
+
 def configure():
+    if is_network_manager_enabled():
+        logging.debug("NetworkManager is enabled. default network config is omitted")
+        return
     network_dir = root_path("/etc/systemd/network")
     network_dir.mkdir(parents=True, exist_ok=True)
     for config in itertools.chain(network_dir.glob("*.network"), network_dir.glob("*.netdev")):
