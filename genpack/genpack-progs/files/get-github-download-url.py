@@ -37,14 +37,29 @@ def get_download_url(user,repo,pattern):
     #else
     return None
 
+def list_assets(user, repo):
+    url = "https://api.github.com/repos/%s/%s/releases/latest" % (user, repo)
+    request = urllib.request.Request(url)
+    with urllib.request.urlopen(request) as response:
+        data = json.loads(response.read().decode())
+    candidates = ["@tarball", "@zipball"]
+    for asset in data.get("assets", []):
+        if "name" in asset:
+            candidates.append(asset["name"])
+    return candidates
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Get latest download url')
     parser.add_argument("--debug", action='store_true', help='debug')
     parser.add_argument("user", help='github user')
     parser.add_argument("project", help='github project')
-    parser.add_argument("pattern", help='regex pattern to match filename. @tarball to source tar.gz, @zipball to source zip')
+    parser.add_argument("pattern", nargs='?', help='regex pattern to match filename. @tarball to source tar.gz, @zipball to source zip')
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+    if args.pattern is None:
+        for name in list_assets(args.user, args.project):
+            print(name)
+        exit(0)
     download_url = get_download_url(args.user, args.project, args.pattern)
     if download_url is None:
         print("Failed to get download url for %s/%s" % (args.user, args.project))
