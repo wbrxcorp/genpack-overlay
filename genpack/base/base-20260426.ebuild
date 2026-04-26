@@ -5,7 +5,7 @@ DESCRIPTION="base system"
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
 
-IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner +install-cloudflared"
+IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner +cloudflared"
 
 REQUIRED_USE="
     logrotate? ( cron )
@@ -41,6 +41,7 @@ RDEPEND="
     cron? ( sys-process/cronie )
     audit? ( sys-process/audit )
     logrotate? ( app-admin/logrotate )
+    cloudflared? ( net-vpn/cloudflared )
 "
 
 S="${WORKDIR}"
@@ -148,6 +149,8 @@ src_install() {
     newins "${FILESDIR}/genpack-init-locale.py" locale.py
     doins "${FILESDIR}/generate-machine-id.py"
 
-    exeinto /usr/bin
-    use install-cloudflared && newexe "${FILESDIR}/install-cloudflared.sh" install-cloudflared
+    if use cloudflared; then
+        exeinto /usr/lib/genpack/package-scripts/net-vpn/cloudflared
+        doexe "${FILESDIR}/cloudflared.sh"
+    fi
 }
