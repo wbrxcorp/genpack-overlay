@@ -3,47 +3,54 @@
 # Author: shimarin
 # Created: 2024-06-29
 
-import json, urllib.request, argparse, logging,re
+import json, urllib.request, argparse, logging, re
 
-def get_download_url(user,repo,pattern):
-    url = "https://api.github.com/repos/%s/%s/releases/latest" % (user,repo)
+def fetch_json(url):
     logging.debug(url)
+    with urllib.request.urlopen(urllib.request.Request(url)) as response:
+        return json.loads(response.read().decode())
 
-    request = urllib.request.Request(url)
-    assets = []
-    tarball_url = None
-    zipball_url = None
-    with urllib.request.urlopen(request) as response:
-        data = json.loads(response.read().decode())
-        if "assets" in data: assets = data["assets"]
-        if "tarball_url" in data: tarball_url = data["tarball_url"]
-        if "zipball_url" in data: zipball_url = data["zipball_url"]
+def fetch_latest_release(user, repo):
+    """Returns (assets, tarball_url, zipball_url) from the latest release.
+    Falls back to the latest tag if no releases exist."""
+    url = "https://api.github.com/repos/%s/%s/releases/latest" % (user, repo)
+    try:
+        data = fetch_json(url)
+        assets = data.get("assets", [])
+        tarball_url = data.get("tarball_url")
+        zipball_url = data.get("zipball_url")
+        return assets, tarball_url, zipball_url
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+    # Fall back to tags
+    tags_url = "https://api.github.com/repos/%s/%s/tags?per_page=1" % (user, repo)
+    tags = fetch_json(tags_url)
+    if not tags:
+        return [], None, None
+    latest_tag = tags[0]
+    return [], latest_tag.get("tarball_url"), latest_tag.get("zipball_url")
+
+def get_download_url(user, repo, pattern):
+    assets, tarball_url, zipball_url = fetch_latest_release(user, repo)
 
     if pattern == "@tarball":
-        return tarball_url if tarball_url is not None else None
+        return tarball_url
     if pattern == "@zipball":
-        return zipball_url if zipball_url is not None else None
+        return zipball_url
 
     for asset in assets:
         if "browser_download_url" not in asset: continue
         if "name" not in asset: continue
-        #else
-        browser_download_url = asset["browser_download_url"]
-        name = asset["name"]
-        # return browser_download_url if name matches pattern regex
-        if re.match(pattern, name):
-            return browser_download_url
+        if re.match(pattern, asset["name"]):
+            return asset["browser_download_url"]
 
-    #else
     return None
 
 def list_assets(user, repo):
-    url = "https://api.github.com/repos/%s/%s/releases/latest" % (user, repo)
-    request = urllib.request.Request(url)
-    with urllib.request.urlopen(request) as response:
-        data = json.loads(response.read().decode())
+    assets, _, _ = fetch_latest_release(user, repo)
     candidates = ["@tarball", "@zipball"]
-    for asset in data.get("assets", []):
+    for asset in assets:
         if "name" in asset:
             candidates.append(asset["name"])
     return candidates
