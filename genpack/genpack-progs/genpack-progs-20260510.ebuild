@@ -35,4 +35,5 @@ src_install() {
     newexe "${FILESDIR}/rebuild-kernel-modules-if-necessary.sh" rebuild-kernel-modules-if-necessary
     newexe "${FILESDIR}/remove-binpkg.py" remove-binpkg
     newexe "${FILESDIR}/with-mysql.py" with-mysql
+    newexe "${FILESDIR}/require-installed.py" require-installed
 }
