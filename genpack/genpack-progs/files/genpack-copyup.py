@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, stat, time, logging, argparse, subprocess, tempfile
+import os, time, logging, argparse, subprocess, tempfile
 
 from genpack_pkg import get_runtime_packages, collect_files
 
@@ -17,22 +17,13 @@ def _collect_extra_via_raw(raw_root):
     """Collect stage3-bootstrap paths that packages don't own, via bind-mount raw root.
 
     Returns absolute path strings ready to pass to _do_copyup().
+    /dev is excluded here — device nodes cannot be copy-upped inside the nspawn
+    user namespace; they are handled by 'genpack-helper copyup-dev' on the host.
     """
     extras = []
-
     for path in _EXTRA_TOPLEVEL:
         if os.path.lexists(os.path.join(raw_root, path.lstrip("/"))):
             extras.append(path)
-
-    # /dev/ recursively: bypass container's virtual devtmpfs via raw bind-mount
-    dev_raw = os.path.join(raw_root, "dev")
-    if os.path.lexists(dev_raw):
-        extras.append("/dev")
-        for dirpath, dirnames, filenames in os.walk(dev_raw, followlinks=False):
-            for name in filenames + dirnames:
-                full = os.path.join(dirpath, name)
-                extras.append("/" + os.path.relpath(full, raw_root))
-
     return extras
 
 def copyup_files(files):
@@ -65,14 +56,7 @@ def _do_copyup(files, raw_root):
                 continue
             try:
                 st = os.lstat(raw_path)
-                if stat.S_ISCHR(st.st_mode) or stat.S_ISBLK(st.st_mode):
-                    # utime on device nodes requires CAP_MKNOD for overlayfs copy-up;
-                    # rename operates on the directory instead and avoids the issue.
-                    tmp_path = raw_path + "~"
-                    os.rename(raw_path, tmp_path)
-                    os.rename(tmp_path, raw_path)
-                else:
-                    os.utime(raw_path, (time.time(), st.st_mtime), follow_symlinks=False)
+                os.utime(raw_path, (time.time(), st.st_mtime), follow_symlinks=False)
                 touched += 1
             except OSError as e:
                 tqdm.write(f"WARNING: utime failed: {path}: {e}")
