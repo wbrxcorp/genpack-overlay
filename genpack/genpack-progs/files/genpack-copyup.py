@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, time, logging, argparse, subprocess, tempfile
+import os, stat, time, logging, argparse, subprocess, tempfile
 
 from genpack_pkg import get_runtime_packages, collect_files
 
@@ -65,7 +65,14 @@ def _do_copyup(files, raw_root):
                 continue
             try:
                 st = os.lstat(raw_path)
-                os.utime(raw_path, (time.time(), st.st_mtime), follow_symlinks=False)
+                if stat.S_ISCHR(st.st_mode) or stat.S_ISBLK(st.st_mode):
+                    # utime on device nodes requires CAP_MKNOD for overlayfs copy-up;
+                    # rename operates on the directory instead and avoids the issue.
+                    tmp_path = raw_path + "~"
+                    os.rename(raw_path, tmp_path)
+                    os.rename(tmp_path, raw_path)
+                else:
+                    os.utime(raw_path, (time.time(), st.st_mtime), follow_symlinks=False)
                 touched += 1
             except OSError as e:
                 tqdm.write(f"WARNING: utime failed: {path}: {e}")
