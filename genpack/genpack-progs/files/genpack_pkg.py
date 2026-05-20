@@ -6,6 +6,7 @@ from pathlib import Path
 import portage
 from portage.dbapi import vartree
 from portage.dep import dep_getkey
+from portage._sets import load_default_config
 
 vt = vartree.vartree()
 api = vartree.vardbapi()
@@ -13,16 +14,22 @@ api = vartree.vardbapi()
 def get_package_set(set_name):
     """Read a portage package set.
 
-    @profile is a Portage built-in set (not a file); read it from
-    portage.settings.packages which reflects the active profile's packages file.
+    @profile is a Portage built-in set backed by portage._sets; it includes
+    all profile packages (both *-marked system packages and non-* ones like
+    genpack/base).  portage.settings.packages only returns *-prefixed entries
+    and would miss non-system profile packages, so the _sets API is used here.
     All other sets are read from /etc/portage/sets/<name>.
     """
     if set_name == "profile":
-        # portage.settings.packages is a tuple/frozenset of profile package atoms.
-        # Entries may or may not carry a "*" system-package marker depending on
-        # the portage version; negations start with "-" and must be skipped.
-        return [atom.lstrip("*") for atom in portage.settings.packages
-                if not atom.startswith("-")]
+        setconfig = load_default_config(portage.settings, portage.db[portage.root])
+        sets_map = setconfig.getSets()
+        if "profile" not in sets_map:
+            return []
+        the_set = sets_map["profile"]
+        atoms = (the_set.getAtoms() if hasattr(the_set, "getAtoms")
+                 else getattr(the_set, "atoms", list(the_set)))
+        return [dep_getkey(atom.lstrip("!")) for atom in atoms
+                if not str(atom).startswith("-")]
     path = f"/etc/portage/sets/{set_name}"
     if not os.path.isfile(path):
         return []
