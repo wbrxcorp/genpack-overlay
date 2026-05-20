@@ -120,6 +120,9 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/mail-mta/nullmailer
     doexe "${FILESDIR}/nullmailer.sh"
 
+    exeinto /usr/lib/genpack/package-scripts/gnome-base/gnome
+    doexe "${FILESDIR}/enable-pipewire-for-all-users.sh"
+
     exeinto /usr/lib/genpack/package-scripts/acct-user/zabbix
     doexe "${FILESDIR}/allow-zabbix-user-reading-journal.sh"
 
