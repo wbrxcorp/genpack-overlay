@@ -7,4 +7,3 @@ set -e
 
 systemctl --global enable pipewire.socket pipewire-pulse.socket
 systemctl --global --force enable wireplumber.service
-systemctl --global disable pipewire-media-session.service || true
