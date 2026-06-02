@@ -1,6 +1,6 @@
 EAPI=8
 
-PYTHON_COMPAT=( python3_{12..13} )
+PYTHON_COMPAT=( python3_{13..15} )
 inherit python-single-r1 git-r3
 
 DESCRIPTION="OS image builder based on Gentoo Linux"

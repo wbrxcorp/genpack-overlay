@@ -1,6 +1,6 @@
 EAPI=8
 
-PYTHON_COMPAT=( python3_13 )
+PYTHON_COMPAT=( python3_{13..15} )
 DISTUTILS_USE_PEP517=setuptools
 inherit distutils-r1 pypi systemd
 
