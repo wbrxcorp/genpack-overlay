@@ -1,0 +1,2 @@
+-a always,exit -F arch=b64 -S execve -F exit=-EPERM -k exec_guard_deny
+-a always,exit -F arch=b64 -S mmap   -F exit=-EPERM -k exec_guard_deny

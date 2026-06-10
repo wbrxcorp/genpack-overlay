@@ -8,18 +8,20 @@ inherit python-single-r1
 DESCRIPTION="Intermediate init for genpack system"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-init"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-init.git"
-EGIT_COMMIT="721060c832335b240e6bd6998779235e5185468a"
+EGIT_COMMIT="dd618b3261daec2a0ae609b6777cfdba0f9d0f09"
 
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
-IUSE=""
+IUSE="exec-guard"
 
-RDEPEND="${PYTHON_DEPS}"
+RDEPEND="${PYTHON_DEPS}
+	exec-guard? ( dev-libs/libbpf )"
 DEPEND="${RDEPEND}"
-BDEPEND="$(python_gen_cond_dep 'dev-python/pybind11[${PYTHON_USEDEP}]') dev-cpp/argparse"
+BDEPEND="$(python_gen_cond_dep 'dev-python/pybind11[${PYTHON_USEDEP}]') dev-cpp/argparse
+	exec-guard? ( dev-util/bpftool llvm-core/clang )"
 
 src_compile() {
-	emake PYTHON=${EPYTHON} genpack-init || die "emake failed"
+	emake $(usex exec-guard "WITH_EXEC_GUARD=1" "") PYTHON=${EPYTHON} genpack-init || die "emake failed"
 }
 
 src_install() {
@@ -30,5 +32,9 @@ src_install() {
 
 	dodir /usr/lib/dracut/dracut.conf.d
 	echo 'realinitpath="/usr/bin/genpack-init"' > "${D}/usr/lib/dracut/dracut.conf.d/realinitpath.conf"
-}
 
+	if use exec-guard; then
+		insinto /etc/audit/rules.d
+		doins "${FILESDIR}/exec_guard.rules"
+	fi
+}
