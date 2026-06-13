@@ -41,7 +41,8 @@ def resolve_main(targets, use):
     if use is not None:
         os.environ["USE"] = use
     # portage must be imported after USE is finalized
-    result = {"success": False, "circular": False, "merges": [], "error": None}
+    result = {"success": False, "circular": False, "merges": [],
+              "cycle_packages": [], "error": None}
     try:
         from _emerge.actions import load_emerge_config
         from _emerge.create_depgraph_params import create_depgraph_params
@@ -59,7 +60,23 @@ def resolve_main(targets, use):
                 result["merges"] = [p.cp for p in dg.altlist() if hasattr(p, "cp")]
             except Exception:
                 result["success"] = False
-        result["circular"] = dg._dynamic_config._circular_deps_for_display is not None
+        mygraph = dg._dynamic_config._circular_deps_for_display
+        result["circular"] = mygraph is not None
+        if mygraph is not None:
+            # extract the packages actually participating in the cycle(s) from
+            # the structured graph portage uses to report them (no string
+            # parsing). this is exactly what circular_dependency_handler does in
+            # _find_cycles, called directly to avoid its heavy suggestion/
+            # autounmask machinery. cycle_packages is the precise set the breaker
+            # must pre-emerge; everything else in the merge list is irrelevant.
+            from _emerge.DepPrioritySatisfiedRange import DepPrioritySatisfiedRange
+            cps = set()
+            for cycle in mygraph.get_cycles(
+                    ignore_priority=DepPrioritySatisfiedRange.ignore_medium_soft):
+                for node in cycle:
+                    if hasattr(node, "cp"):
+                        cps.add(node.cp)
+            result["cycle_packages"] = sorted(cps)
     except Exception as e:
         result["error"] = f"{type(e).__name__}: {e}"
     json.dump(result, sys.stdout)
@@ -103,6 +120,12 @@ def main():
             "leaving it to the main emerge to report.")
         return 0
 
+    # packages actually in the cycle, captured from this first resolution (the
+    # re-resolution below has the cycle broken, so it no longer reports them)
+    cycle_packages = set(r.get("cycle_packages", []))
+    if cycle_packages:
+        log(f"circular dependencies among: {' '.join(sorted(cycle_packages))}")
+
     # combine breaker USE flags of all entries, preserving order
     use_flags = []
     for flags in table.values():
@@ -126,11 +149,18 @@ def main():
                 "leaving it to the main emerge to report.")
         return 1
 
-    merges = set(r["merges"])
-    needed = [pkg for pkg in table if pkg in merges]
+    # only pre-emerge table packages that are actually in the cycle, not every
+    # table package present somewhere in the graph (e.g. pillow pulled in by the
+    # base system but not part of this cycle). fall back to the full merge list
+    # if the cycle membership could not be determined.
+    if cycle_packages:
+        needed = [pkg for pkg in table if pkg in cycle_packages]
+    else:
+        merges = set(r["merges"])
+        needed = [pkg for pkg in table if pkg in merges]
     if not needed:
         log("cycle was broken by USE flags alone but no breaker package is part of "
-            "the dependency graph; the table may need updating.")
+            "the cycle; the table may need updating.")
         return 1
 
     log(f"emerging breaker packages: {' '.join(needed)}")
