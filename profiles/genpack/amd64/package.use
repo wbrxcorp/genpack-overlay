@@ -1,1 +1,5 @@
 sys-boot/grub grub_platforms_efi-32
+
+# claude-code requires AVX/AVX2 on amd64 (REQUIRED_USE); assert host CPU support
+# here so individual artifacts don't have to set CPU_FLAGS_X86 themselves.
+dev-util/claude-code cpu_flags_x86_avx cpu_flags_x86_avx2
