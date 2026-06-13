@@ -1,27 +1,35 @@
 #!/usr/bin/python3
 """Detect and break known circular dependencies before the main emerge.
 
-Resolves the lower-layer target set with portage's resolver API. If the
-resolution fails due to circular dependencies, re-resolves with the
-breaker USE flags below applied, then emerges (oneshot) the breaker
-packages that actually appear in the dependency graph so the main emerge
-can proceed. Does nothing when the target set resolves cleanly.
+Resolves the lower-layer target set with portage's resolver API. portage
+reports only the cycle it first gets stuck on, so this works iteratively:
+whenever a circular dependency is reported, the breaker USE flags for the
+table packages in that cycle are written to a package.use file and the set
+is re-resolved, until it resolves cleanly. The cycle-breaking packages are
+then emerged (oneshot) so the main emerge can proceed. Does nothing when the
+target set resolves cleanly.
+
+The flags are applied per package (via package.use), not as a global USE
+value: a table entry like ``media-libs/libavif -gdk-pixbuf`` must only
+affect libavif, otherwise disabling such a flag system-wide makes unrelated
+packages (every gdk-pixbuf consumer on a desktop) unsatisfiable and the
+re-resolution fails for reasons that have nothing to do with the cycle.
 
 Unrecognized command line arguments are passed through to the breaker
 emerge (e.g. --jobs, --load-average).
 
-The resolver honors the USE environment variable only when it is set
-before portage is imported, so resolutions run as subprocess invocations
-of this script itself (--resolve-json mode).
+Each resolution runs as a subprocess invocation of this script itself
+(--resolve-json mode) so portage reads a fresh config — and thus the
+current package.use file — every time.
 """
 import os, sys, json, argparse, subprocess
 
 TARGETS = ["@world", "@genpack-runtime", "@genpack-buildtime"]
 
 # Known packages whose USE flags create circular dependencies in the Gentoo
-# tree, and the flags to disable while breaking the cycle. The flags of all
-# entries are combined into a single USE value; per-package attribution is
-# for maintainability only.
+# tree, mapped to the flags to disable on that package while breaking the
+# cycle. Applied per package via package.use, so the flags only affect the
+# named package.
 BREAKER_PACKAGES = {
     "media-libs/freetype":  "-harfbuzz",
     "media-libs/harfbuzz":  "-truetype -cairo",
@@ -33,14 +41,18 @@ BREAKER_PACKAGES = {
     "media-video/ffmpeg":   "-sdl -v4l -svg -pulseaudio -libass -truetype -harfbuzz",
 }
 
+# package.use file the breaker writes its per-package overrides to. Sorts
+# after genpack's own "genpack" file so it wins for the same atom. Overridable
+# for testing. Removed before this script returns so the main emerge is
+# unaffected.
+BREAKER_PKGUSE = os.environ.get(
+    "GENPACK_BREAKER_PKGUSE", "/etc/portage/package.use/zz-genpack-circulardep-breaker")
+
 def log(msg):
     print(f"genpack-break-circular-dep: {msg}", file=sys.stderr)
 
-def resolve_main(targets, use):
+def resolve_main(targets):
     """Resolve targets and report the result as JSON on stdout."""
-    if use is not None:
-        os.environ["USE"] = use
-    # portage must be imported after USE is finalized
     result = {"success": False, "circular": False, "merges": [],
               "cycle_packages": [], "error": None}
     try:
@@ -67,8 +79,7 @@ def resolve_main(targets, use):
             # the structured graph portage uses to report them (no string
             # parsing). this is exactly what circular_dependency_handler does in
             # _find_cycles, called directly to avoid its heavy suggestion/
-            # autounmask machinery. cycle_packages is the precise set the breaker
-            # must pre-emerge; everything else in the merge list is irrelevant.
+            # autounmask machinery.
             from _emerge.DepPrioritySatisfiedRange import DepPrioritySatisfiedRange
             cps = set()
             for cycle in mygraph.get_cycles(
@@ -82,20 +93,105 @@ def resolve_main(targets, use):
     json.dump(result, sys.stdout)
     return 0
 
-def resolve(targets, use=None):
+def resolve(targets):
+    """Resolve in a fresh subprocess so the current package.use is read."""
     cmdline = [sys.executable, os.path.realpath(__file__),
                "--resolve-json", "--targets=" + " ".join(targets)]
-    if use is not None:
-        cmdline.append("--use=" + use)
     out = subprocess.run(cmdline, stdout=subprocess.PIPE, check=True)
     return json.loads(out.stdout)
+
+def write_breaker_pkguse(pkgs, table):
+    """Write per-package USE overrides for the given table packages."""
+    os.makedirs(os.path.dirname(BREAKER_PKGUSE), exist_ok=True)
+    with open(BREAKER_PKGUSE, "w") as f:
+        for pkg in pkgs:
+            f.write(f"{pkg} {table[pkg]}\n")
+
+def clear_breaker_pkguse():
+    try:
+        os.remove(BREAKER_PKGUSE)
+    except FileNotFoundError:
+        pass
+
+def break_cycles(targets, table, args, emerge_opts):
+    # Remove any file left behind by a previously hard-killed run (the finally
+    # below covers graceful exits, not SIGKILL/OOM). A stale file would
+    # otherwise silently break the first resolution's cycle and hide it.
+    clear_breaker_pkguse()
+
+    log(f"checking dependency resolution of {' '.join(targets)} ...")
+
+    # portage reports only the cycle it first gets stuck on, so breaking it can
+    # expose another one deeper in the graph. Resolve repeatedly, each pass
+    # adding the per-package breaker USE for the table packages in the newly
+    # reported cycle, until the target set resolves.
+    acted = []          # table packages we will pre-emerge, in table order
+    acted_set = set()
+    while True:
+        r = resolve(targets)
+        if r["error"]:
+            log(f"resolution failed: {r['error']}")
+            return 1
+        if r["success"]:
+            break
+        if not r["circular"]:
+            # Not a cycle problem; leave it to the main emerge to report (it
+            # will re-hit the original cycle with its canonical message).
+            why = "with the breaker USE applied " if acted else ""
+            log(f"resolution failed {why}for a reason other than circular "
+                "dependencies; leaving it to the main emerge to report.")
+            return 0
+        cycle_packages = set(r.get("cycle_packages", []))
+        if cycle_packages:
+            log(f"circular dependencies among: {' '.join(sorted(cycle_packages))}")
+            new_pkgs = [p for p in table if p in cycle_packages and p not in acted_set]
+        else:
+            # cycle membership could not be identified; fall back to applying
+            # the remaining table wholesale as a last resort
+            new_pkgs = [p for p in table if p not in acted_set]
+        if not new_pkgs:
+            log("circular dependencies remain but no further breaker-table package "
+                "applies; the table needs updating "
+                "(or use circulardep_breaker in genpack.json5 as a stopgap).")
+            return 1
+        for pkg in new_pkgs:
+            acted.append(pkg)
+            acted_set.add(pkg)
+        write_breaker_pkguse(acted, table)
+        log("circular dependencies detected. re-resolving with "
+            + "; ".join(f"{p} {table[p]}" for p in acted) + " ...")
+
+    if not acted:
+        log("no circular dependencies, nothing to do.")
+        return 0
+
+    # pre-emerge only the cycle-breaking packages that are actually in the
+    # resolved graph (the wholesale fallback above may have added extras)
+    merges = set(r["merges"])
+    needed = [pkg for pkg in acted if pkg in merges]
+    if not needed:
+        log("cycles were broken by USE flags alone but no breaker package is part of "
+            "the dependency graph; the table may need updating.")
+        return 1
+
+    log(f"emerging breaker packages: {' '.join(needed)}")
+    # the package.use file is still in effect, so each package builds with its
+    # reduced USE; the main emerge later rebuilds them with full USE against
+    # the now-installed versions
+    emerge_cmd = ["emerge", "--oneshot", "--update", "--buildpkg", "--usepkg",
+                  "--binpkg-respect-use=y"]
+    if args.pretend:
+        emerge_cmd.append("--pretend")
+    emerge_cmd += emerge_opts + needed
+    subprocess.run(emerge_cmd, check=True)
+    log("done.")
+    return 0
 
 def main():
     parser = argparse.ArgumentParser(
         description="Detect and break known circular dependencies",
         epilog="Unrecognized options are passed through to the breaker emerge.")
     parser.add_argument("--resolve-json", action="store_true", help=argparse.SUPPRESS)
-    parser.add_argument("--use", default=None, help=argparse.SUPPRESS)
     parser.add_argument("--pretend", action="store_true", help="Pass --pretend to the breaker emerge (for testing)")
     parser.add_argument("--targets", default=None, help=argparse.SUPPRESS)  # testing
     parser.add_argument("--table-json", default=None, help=argparse.SUPPRESS)  # testing
@@ -105,74 +201,12 @@ def main():
     table = json.loads(args.table_json) if args.table_json else BREAKER_PACKAGES
 
     if args.resolve_json:
-        return resolve_main(targets, args.use)
+        return resolve_main(targets)
 
-    log(f"checking dependency resolution of {' '.join(targets)} ...")
-    r = resolve(targets)
-    if r["error"]:
-        log(f"resolution failed: {r['error']}")
-        return 1
-    if r["success"]:
-        log("no circular dependencies, nothing to do.")
-        return 0
-    if not r["circular"]:
-        log("resolution failed for a reason other than circular dependencies; "
-            "leaving it to the main emerge to report.")
-        return 0
-
-    # packages actually in the cycle, captured from this first resolution (the
-    # re-resolution below has the cycle broken, so it no longer reports them)
-    cycle_packages = set(r.get("cycle_packages", []))
-    if cycle_packages:
-        log(f"circular dependencies among: {' '.join(sorted(cycle_packages))}")
-
-    # combine breaker USE flags of all entries, preserving order
-    use_flags = []
-    for flags in table.values():
-        for f in flags.split():
-            if f not in use_flags:
-                use_flags.append(f)
-    use = " ".join(use_flags)
-    log(f"circular dependencies detected. re-resolving with USE=\"{use}\" ...")
-
-    r = resolve(targets, use)
-    if r["error"]:
-        log(f"resolution failed: {r['error']}")
-        return 1
-    if not r["success"]:
-        if r["circular"]:
-            log("circular dependencies remain even with all breaker USE flags applied. "
-                "The breaker package table of this script needs updating "
-                "(or use circulardep_breaker in genpack.json5 as a stopgap).")
-        else:
-            log("resolution with breaker USE flags failed for another reason; "
-                "leaving it to the main emerge to report.")
-        return 1
-
-    # only pre-emerge table packages that are actually in the cycle, not every
-    # table package present somewhere in the graph (e.g. pillow pulled in by the
-    # base system but not part of this cycle). fall back to the full merge list
-    # if the cycle membership could not be determined.
-    if cycle_packages:
-        needed = [pkg for pkg in table if pkg in cycle_packages]
-    else:
-        merges = set(r["merges"])
-        needed = [pkg for pkg in table if pkg in merges]
-    if not needed:
-        log("cycle was broken by USE flags alone but no breaker package is part of "
-            "the cycle; the table may need updating.")
-        return 1
-
-    log(f"emerging breaker packages: {' '.join(needed)}")
-    emerge_cmd = ["emerge", "--oneshot", "--update", "--buildpkg", "--usepkg",
-                  "--binpkg-respect-use=y"]
-    if args.pretend:
-        emerge_cmd.append("--pretend")
-    emerge_cmd += emerge_opts + needed
-    env = dict(os.environ, USE=use)
-    subprocess.run(emerge_cmd, env=env, check=True)
-    log("done.")
-    return 0
+    try:
+        return break_cycles(targets, table, args, emerge_opts)
+    finally:
+        clear_breaker_pkguse()
 
 if __name__ == "__main__":
     sys.exit(main())
