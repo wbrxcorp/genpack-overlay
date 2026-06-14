@@ -9,18 +9,11 @@ def truncate_after_second_space(s):
     return splitted[0] + ' ' + splitted[1]
 
 def configure(ini):
-    # 1. Fetch raw key string from system.ini or fallback to QEMU fw_cfg
+    # 1. Fetch raw key string from system.ini
     raw_ssh_pubkeys = ini.get("_default", "ssh_pubkey", fallback=None)
-    if raw_ssh_pubkeys is None:
-        try:
-            from genpack_init import read_qemu_firmware_config
-            # Must query 'opt/ssh-public-key' to match the fw_cfg namespace
-            raw_ssh_pubkeys = read_qemu_firmware_config("opt/ssh-public-key")
-        except ImportError:
-            pass
 
     if raw_ssh_pubkeys is None:
-        logging.info("No SSH public key found in system.ini or fw_cfg.")
+        logging.info("No SSH public key found in system.ini.")
         return
 
     # 2. Parse and normalize keys line by line (handles multi-line inputs cleanly)

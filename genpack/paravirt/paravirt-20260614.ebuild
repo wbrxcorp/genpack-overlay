@@ -22,10 +22,14 @@ src_install() {
 	# script for genpack
 	exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
 	doexe "${FILESDIR}/paravirt.sh"
-    doexe "${FILESDIR}/qemu-guest-agent.sh"
+	doexe "${FILESDIR}/qemu-guest-agent.sh"
 
-    insinto /usr/lib/genpack-init
-    doins "${FILESDIR}/swapfile.py"
-    doins "${FILESDIR}/timezone-paravirt.py"
-    doins "${FILESDIR}/lang-paravirt.py"
+	exeinto /usr/bin
+	newexe "${FILESDIR}/import-fw-ssh-key.py" import-fw-ssh-key
+
+	insinto /usr/lib/genpack-init
+	doins "${FILESDIR}/swapfile.py"
+	doins "${FILESDIR}/timezone-paravirt.py"
+	doins "${FILESDIR}/lang-paravirt.py"
+	doins "${FILESDIR}/ssh-fw-cfg.py"
 }
