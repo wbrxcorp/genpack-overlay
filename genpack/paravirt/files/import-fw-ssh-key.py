@@ -31,7 +31,7 @@ def main():
             raw_ssh_pubkeys = None
 
     if raw_ssh_pubkeys is None:
-        logging.error("No SSH public key found in QEMU fw_cfg (opt/ssh-public-key).\")
+        logging.error("No SSH public key found in QEMU fw_cfg (opt/ssh-public-key).")
         sys.exit(1)
 
     # 2. Parse and normalize keys line by line
@@ -42,7 +42,7 @@ def main():
             pubkeys.append(line)
 
     if not pubkeys:
-        logging.error("No valid SSH public keys found in provided fw_cfg.\")
+        logging.error("No valid SSH public keys found in provided fw_cfg.")
         sys.exit(1)
 
     # 3. Determine target users based on who runs this command

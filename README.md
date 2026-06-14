@@ -27,3 +27,4 @@ When adding or updating packages in this overlay:
 1. Ensure they conform to Gentoo EAPI 8 standards.
 2. Regenerate the package Manifest using `ebuild <file> manifest`.
 3. Do not introduce circular dependencies unless mitigated through the package's USE flags.
+4. For date-versioned ebuilds, if multiple updates are committed on the same day, append Gentoo-style revisions (e.g., -r1, -r2, etc.) rather than custom dash branches (e.g., use paravirt-20260614-r1.ebuild instead of custom dash versions).
