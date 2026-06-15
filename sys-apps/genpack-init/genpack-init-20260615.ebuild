@@ -8,7 +8,7 @@ inherit python-single-r1
 DESCRIPTION="Intermediate init for genpack system"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-init"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-init.git"
-EGIT_COMMIT="2ae654d9c71a41ca7364f219a456c45a2a7690ab"
+EGIT_COMMIT="1e15af5564e6204508fc79103b3560c46fac480e"
 
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
