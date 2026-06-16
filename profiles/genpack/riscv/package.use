@@ -1,0 +1,4 @@
+# cloudflared has no riscv KEYWORDS (only ** could pull it) and is Cloudflare-
+# specific Go; not needed on riscv. Everything else genpack/base pulls is ~riscv
+# (accepted arch-wide) and builds, so it stays enabled (parity with other arches).
+genpack/base -cloudflared

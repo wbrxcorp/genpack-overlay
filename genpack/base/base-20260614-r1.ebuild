@@ -62,6 +62,12 @@ src_install() {
     exeinto /usr/libexec
     doexe genpack-shutdown
 
+    # rescue shim for the `telnet HOST PORT` muscle-memory: we intentionally do
+    # not ship net-misc/netkit-telnetd, so /usr/bin/telnet scolds + redirects to
+    # socat or bash /dev/tcp instead. See files/fake-telnet.
+    exeinto /usr/bin
+    newexe "${FILESDIR}/fake-telnet" telnet
+
     # script for genpack
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
     doexe "${FILESDIR}/copyup-fundamentals.sh"

@@ -16,7 +16,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RDEPEND="
     ${PYTHON_DEPS}
     sys-apps/util-linux app-portage/gentoolkit dev-util/pkgdev app-arch/zip dev-debug/strace
-    net-analyzer/tcpdump app-editors/nano app-editors/vim net-misc/netkit-telnetd
+    net-analyzer/tcpdump app-editors/nano app-editors/vim
     app-misc/figlet
     sys-fs/squashfs-tools[lz4,lzma,lzo,xattr,zstd]
     sys-fs/mtools

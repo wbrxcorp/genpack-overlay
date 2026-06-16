@@ -3,7 +3,7 @@ EAPI=8
 DESCRIPTION="Guest-side vsock-to-TCP bridge helper for VM sock-forward"
 
 SLOT="0"
-KEYWORDS="amd64 arm64"
+KEYWORDS="amd64 arm64 riscv"
 
 RDEPEND="
 	net-misc/socat

@@ -9,3 +9,5 @@ arm64 genpack/arm64/paravirt stable
 arm64 genpack/arm64/systemimg stable
 arm64 genpack/arm64/baremetal stable
 arm64 genpack/arm64/raspberrypi stable
+riscv genpack/riscv stable
+riscv genpack/riscv/paravirt stable

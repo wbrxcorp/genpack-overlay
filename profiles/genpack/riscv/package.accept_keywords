@@ -1,0 +1,7 @@
+# NOTE: riscv accepts ~riscv arch-wide (gentoo profiles/arch/riscv/make.defaults),
+# so ~riscv packages need NO entry here. List ONLY packages that have no riscv
+# KEYWORDS at all. Scope to < 9999 where ** would otherwise pull a live ebuild.
+dev-util/debootstrap **
+dev-cpp/argparse **             # dep of sys-apps/genpack-init etc.
+<sys-apps/kexec-tools-9999 **   # stub: kexec distro-switching
+app-misc/figlet **              # genpack-progs build-env dep (banners)
