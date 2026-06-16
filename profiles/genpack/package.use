@@ -4,3 +4,4 @@ sys-fs/squashfs-tools lz4 lzma lzo xattr zstd # genpack uses lz4, lzma, lzo and 
 app-crypt/libb2 -openmp # openmp support brings gcc dependency, which is not generally needed
 dev-lang/perl minimal
 app-editors/vim minimal
+net-misc/curl telnet # genpack/base ships a fake /usr/bin/telnet that uses `curl telnet://`; the telnet USE is off by default
