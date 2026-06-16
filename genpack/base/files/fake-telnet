@@ -4,8 +4,10 @@
 # genpack intentionally does NOT ship a real telnet (net-misc/netkit-telnetd was
 # dropped). This shim is a rescue measure for the muscle-memory `telnet HOST PORT`
 # (poking SMTP/HTTP/etc. by hand): it scolds you, teaches the modern equivalent,
-# then connects you anyway — via socat if present, otherwise bash's built-in
-# /dev/tcp (so it works even in a minimal image with no netcat/socat).
+# then connects you anyway. It prefers `curl telnet://` (curl actually speaks the
+# telnet protocol and is present in almost every image), falling back to socat,
+# ncat/nc, and finally bash's built-in /dev/tcp so it works even in a minimal
+# image with none of those installed.
 
 host=$1
 port=${2:-23}
@@ -15,6 +17,16 @@ if [ -z "$host" ]; then
     exit 2
 fi
 
+# Real telnet accepts a /etc/services name (e.g. `telnet host smtp`). socat and
+# bash /dev/tcp resolve such names themselves, but curl's telnet:// wants a
+# number, so normalise it up front for every backend.
+case $port in
+    *[!0-9]*)
+        svc=$(getent services "$port" 2>/dev/null | awk '{print $2}' | cut -d/ -f1)
+        [ -n "$svc" ] && port=$svc
+        ;;
+esac
+
 cat >&2 <<EOF
 ──────────────────────────────────────────────────────────────────
 You reached for telnet out of habit again. This is NOT the real
@@ -22,18 +34,23 @@ telnet — genpack does not ship net-misc/netkit-telnetd on purpose.
 Fine, I'll connect you to $host:$port this once.
 
 Next time, type one of these instead:
-    socat - TCP:$host:$port              # if socat is available (preferred)
-    socat - TCP:$host:$port,crlf         # for SMTP/HTTP etc. that need CRLF
+    curl telnet://$host:$port            # closest to telnet, curl is almost always present
+    socat - TCP:$host:$port              # raw TCP (preferred for scripting)
+    socat - TCP:$host:$port,crlf         # raw TCP with CRLF line endings
     exec 3<>/dev/tcp/$host/$port; cat <&3 & cat >&3   # bash only, no extra tool
 
-The operation can't be made identical to telnet, so note the differences:
+Notes so the substitute doesn't surprise you:
   * There is no '^]' escape character. Disconnect with Ctrl-C or Ctrl-D.
-  * Raw TCP only — no telnet option negotiation, no binary mode.
-  * Lines end in bare LF. If the peer needs CRLF, use socat's ',crlf'.
+  * curl telnet:// speaks the telnet protocol (option negotiation, CRLF), so it
+    behaves closest to the real thing.
+  * socat / nc / bash give you a RAW TCP pipe instead: no telnet negotiation, and
+    lines end in bare LF — append ',crlf' to socat if the peer wants CRLF.
 ──────────────────────────────────────────────────────────────────
 EOF
 
-if command -v socat >/dev/null 2>&1; then
+if command -v curl >/dev/null 2>&1; then
+    exec curl telnet://"$host:$port"
+elif command -v socat >/dev/null 2>&1; then
     exec socat - "TCP:$host:$port"
 elif command -v ncat >/dev/null 2>&1; then
     exec ncat -- "$host" "$port"
