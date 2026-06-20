@@ -85,6 +85,12 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/net-firewall/iptables
     doexe "${FILESDIR}/iptables-set-legacy.sh"
 
+    # These genpack-init-*.py scripts are staging sources, NOT directly active.
+    # Each is copied into /usr/lib/genpack-init/ by the corresponding package-script
+    # (e.g. mysql.sh, docker.sh) only when that package is actually installed in
+    # the upper layer — so the module activates only if the package is present.
+    # Contrast with timezone.py / locale.py below, which are always active and go
+    # directly into /usr/lib/genpack-init/.
     insinto /usr/lib/genpack
     doins "${FILESDIR}/genpack-init-docker.py"
     doins "${FILESDIR}/genpack-init-mysql.py"
@@ -156,6 +162,7 @@ src_install() {
     exeinto /usr/bin
     newexe "${FILESDIR}/glsa-check.py" genpack-glsa-check
 
+    # These modules are always active (base functionality) — installed directly.
     insinto /usr/lib/genpack-init
     use banner && doins "${FILESDIR}/01banner.py"
     newins "${FILESDIR}/genpack-init-timezone.py" timezone.py
