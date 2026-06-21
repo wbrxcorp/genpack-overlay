@@ -2,8 +2,12 @@
 import os, sys, argparse, hashlib, json, shutil, urllib.request, urllib.error
 
 CACHE_DIR = "/var/cache/download"
+# Some CDNs (e.g. Cloudflare in front of downloads.getmonero.org) reject the
+# default "Python-urllib/x.y" User-Agent with HTTP 403 (error code 1010), so
+# send a non-default User-Agent by default.
+DEFAULT_USER_AGENT = "genpack-download/1.0"
 
-def main(cachedir, url):
+def main(cachedir, url, user_agent=DEFAULT_USER_AGENT):
     url_hash = hashlib.sha1(url.encode("utf-8")).hexdigest()
     obj_path = os.path.join(cachedir, url_hash)
     meta_path = obj_path + ".meta"
@@ -11,6 +15,8 @@ def main(cachedir, url):
     os.makedirs(cachedir, exist_ok=True)
 
     headers = {}
+    if user_agent:
+        headers["User-Agent"] = user_agent
     if os.path.exists(obj_path) and os.path.exists(meta_path):
         try:
             with open(meta_path) as f:
@@ -55,6 +61,8 @@ def main(cachedir, url):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--cachedir", default=CACHE_DIR, help="Cache directory")
+    parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT,
+                        help="User-Agent header to send (empty string to omit)")
     parser.add_argument("url")
     args = parser.parse_args()
-    main(args.cachedir, args.url)
+    main(args.cachedir, args.url, args.user_agent)
