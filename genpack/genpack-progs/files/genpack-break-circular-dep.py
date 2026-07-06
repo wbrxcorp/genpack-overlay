@@ -1,26 +1,55 @@
 #!/usr/bin/python3
 """Detect and break known circular dependencies before the main emerge.
 
-Resolves the lower-layer target set with portage's resolver API. portage
-reports only the cycle it first gets stuck on, so this works iteratively:
-whenever a circular dependency is reported, the breaker USE flags for the
-table packages in that cycle are written to a package.use file and the set
-is re-resolved, until it resolves cleanly. The cycle-breaking packages are
-then emerged (oneshot) so the main emerge can proceed. Does nothing when the
-target set resolves cleanly.
+Resolves the lower-layer target set with portage's resolver API. If a circular
+dependency is reported, the breaker USE flags for the *whole* table are written
+to a package.use file and the set is re-resolved to confirm the cycles are
+gone; then every table package that is part of the graph is emerged (oneshot,
+with that package.use still in effect) so it is built as a warm binpkg. The
+main emerge afterwards rebuilds those packages with full USE against the
+now-installed versions, which it can order freely because warm binpkgs break
+build-time cycles. A remaining *non-circular* resolution failure (e.g. a
+keyword/USE autounmask change the main emerge handles later) is not the
+breaker's concern. Does nothing when the set has no circular dependency.
+
+Why the *whole* table at once rather than only the packages in the reported
+cycle -- two properties of portage's resolver, both learned the hard way:
+
+* portage reports only the one cycle it first gets stuck on, and which cycles
+  are visible at all depends on the binary-package cache: a package available
+  as a USE-matching binpkg is merged with no build step, so its build-time
+  edges never enter the graph and any cycle through it is invisible. A
+  cache-cold build compiles far more from source and surfaces more cycles.
+  There is no reliable "the cycle is X" to react to.
+
+* The reported set also depends on the resolve options and on state: the
+  full-set resolve may show only the ffmpeg/libsdl2/pipewire cycle while
+  emerging ffmpeg alone pulls a closure that reintroduces the
+  docutils/pillow/harfbuzz/glib cycle -- because emerging one package makes
+  different binary-vs-source choices than the deep full-set resolve. Applying
+  only the cycle portage happened to report therefore leaves other cycles
+  unbroken in the pre-emerge closures and the emerge fails.
+
+Applying the whole table sidesteps both: every table flag is a harmless
+optional feature disabled only temporarily, so no matter which cycles are
+visible or which closure the pre-emerge pulls, they are all broken at once.
+This is exactly portage's own advice ("Temporarily changing some use flag for
+all packages might be the better option"). The one caveat is that a table
+entry must not disable a flag that some package in the graph *hard-requires*
+(see the freetype/harfbuzz note on the table) -- that would make the whole set
+unsatisfiable; keep the table free of such entries.
 
 The flags are applied per package (via package.use), not as a global USE
-value: a table entry like ``media-libs/libavif -gdk-pixbuf`` must only
-affect libavif, otherwise disabling such a flag system-wide makes unrelated
-packages (every gdk-pixbuf consumer on a desktop) unsatisfiable and the
-re-resolution fails for reasons that have nothing to do with the cycle.
+value: a table entry like ``media-libs/libavif -gdk-pixbuf`` must only affect
+libavif, otherwise disabling such a flag system-wide makes unrelated packages
+(every gdk-pixbuf consumer on a desktop) unsatisfiable.
 
-Unrecognized command line arguments are passed through to the breaker
-emerge (e.g. --jobs, --load-average).
+Unrecognized command line arguments are passed through to the breaker emerge
+(e.g. --jobs, --load-average).
 
 Each resolution runs as a subprocess invocation of this script itself
-(--resolve-json mode) so portage reads a fresh config — and thus the
-current package.use file — every time.
+(--resolve-json mode) so portage reads a fresh config — and thus the current
+package.use file — every time.
 """
 import os, sys, json, argparse, subprocess
 
@@ -29,10 +58,40 @@ TARGETS = ["@world", "@genpack-runtime", "@genpack-buildtime"]
 # Known packages whose USE flags create circular dependencies in the Gentoo
 # tree, mapped to the flags to disable on that package while breaking the
 # cycle. Applied per package via package.use, so the flags only affect the
-# named package.
+# named package. The whole table is applied at once (see the module docstring),
+# so every entry here must be safe to disable across the whole graph: it must
+# not disable a flag that some package hard-requires.
+#
+# History / where to add things: before this breaker existed, each artifact set
+# its own packages + minus-USE by hand in the "circulardep_breaker" genpack.json5
+# property, applied wholesale (as a global USE). We tried to be cleverer here --
+# detect the exact reported cycle and disable only the flags for its packages --
+# but portage makes that unworkable: it reports only the one cycle it first gets
+# stuck on, which cycles are even visible depends on the binpkg cache, and the
+# detection resolve does not make the same binary-vs-source choices as the
+# pre-emerge, so a surgically "clean" resolve still hits a cycle when emerged.
+# So this returned to wholesale application -- but per-package (not global USE),
+# from a shared table (not per-artifact), and gated on a cycle actually being
+# present. Division of labour: this table = common, cross-artifact cycles broken
+# automatically; genpack.json5 "circulardep_breaker" = the per-artifact escape
+# hatch for one-offs not worth generalising here. Prefer adding a genuinely
+# shared cycle-breaker to this table; keep artifact-specific quirks in json5.
+#
+# Note on freetype/harfbuzz -- why neither carries -truetype and why freetype
+# is absent entirely:
+#   * freetype[harfbuzz] is a PDEPEND (post-dependency), so portage always
+#     orders freetype before harfbuzz on its own; the freetype<->harfbuzz cycle
+#     is never a hard build cycle and needs no breaker. freetype therefore has
+#     no entry -- and must not: freetype[harfbuzz] is hard-required by consumers
+#     like sdl2-ttf/vlc/godot, so "freetype -harfbuzz" applied wholesale would
+#     make the graph unsatisfiable whenever one of those is present.
+#   * conversely harfbuzz[truetype] hard-requires freetype (DEPEND), and
+#     freetype[harfbuzz] (PDEPEND) hard-requires harfbuzz[truetype], so pinning
+#     "harfbuzz -truetype" is itself unsatisfiable whenever freetype[harfbuzz]
+#     is pulled in (e.g. via fontconfig). harfbuzz's only cycle-relevant flag is
+#     -cairo (the real, breakable harfbuzz<->cairo cycle).
 BREAKER_PACKAGES = {
-    "media-libs/freetype":  "-harfbuzz",
-    "media-libs/harfbuzz":  "-truetype -cairo",
+    "media-libs/harfbuzz":  "-cairo",
     "dev-libs/glib":        "-sysprof",
     "media-libs/tiff":      "-webp",
     "media-libs/libwebp":   "-tiff",
@@ -61,16 +120,25 @@ def resolve_main(targets):
         from _emerge.depgraph import backtrack_depgraph
         config = load_emerge_config(action="", args=[], opts={})
         myopts = {"--pretend": True, "--update": True, "--deep": True,
-                  "--newuse": True, "--usepkg": True}
+                  "--newuse": True, "--usepkg": True,
+                  # Let portage backtrack past non-circular autounmask stops
+                  # (keyword/USE changes) so it reaches and reports the actual
+                  # circular dependencies instead of aborting early. Without
+                  # this, an artifact needing e.g. a ~arch keyword unmask makes
+                  # the resolver stop before any cycle is ever surfaced.
+                  "--autounmask-backtrack": "y"}
         params = create_depgraph_params(myopts, "merge")
         success, dg, _favorites = backtrack_depgraph(
             config.target_config.settings, config.trees, myopts, params,
             "merge", targets, None)
         result["success"] = bool(success)
-        if success:
-            try:
-                result["merges"] = [p.cp for p in dg.altlist() if hasattr(p, "cp")]
-            except Exception:
+        # altlist() is available even when resolution ultimately failed for a
+        # non-circular reason; capture it regardless so the breaker can still
+        # tell which of its table packages are part of the graph in that case.
+        try:
+            result["merges"] = [p.cp for p in dg.altlist() if hasattr(p, "cp")]
+        except Exception:
+            if success:
                 result["success"] = False
         mygraph = dg._dynamic_config._circular_deps_for_display
         result["circular"] = mygraph is not None
@@ -121,63 +189,51 @@ def break_cycles(targets, table, args, emerge_opts):
 
     log(f"checking dependency resolution of {' '.join(targets)} ...")
 
-    # portage reports only the cycle it first gets stuck on, so breaking it can
-    # expose another one deeper in the graph. Resolve repeatedly, each pass
-    # adding the per-package breaker USE for the table packages in the newly
-    # reported cycle, until the target set resolves.
-    acted = []          # table packages we will pre-emerge, in table order
-    acted_set = set()
-    while True:
-        r = resolve(targets)
-        if r["error"]:
-            log(f"resolution failed: {r['error']}")
-            return 1
-        if r["success"]:
-            break
-        if not r["circular"]:
-            # Not a cycle problem; leave it to the main emerge to report (it
-            # will re-hit the original cycle with its canonical message).
-            why = "with the breaker USE applied " if acted else ""
-            log(f"resolution failed {why}for a reason other than circular "
-                "dependencies; leaving it to the main emerge to report.")
-            return 0
-        cycle_packages = set(r.get("cycle_packages", []))
-        if cycle_packages:
-            log(f"circular dependencies among: {' '.join(sorted(cycle_packages))}")
-            new_pkgs = [p for p in table if p in cycle_packages and p not in acted_set]
-        else:
-            # cycle membership could not be identified; fall back to applying
-            # the remaining table wholesale as a last resort
-            new_pkgs = [p for p in table if p not in acted_set]
-        if not new_pkgs:
-            log("circular dependencies remain but no further breaker-table package "
-                "applies; the table needs updating "
-                "(or use circulardep_breaker in genpack.json5 as a stopgap).")
-            return 1
-        for pkg in new_pkgs:
-            acted.append(pkg)
-            acted_set.add(pkg)
-        write_breaker_pkguse(acted, table)
-        log("circular dependencies detected. re-resolving with "
-            + "; ".join(f"{p} {table[p]}" for p in acted) + " ...")
-
-    if not acted:
-        log("no circular dependencies, nothing to do.")
+    # 1. Does the unmodified set have a circular dependency at all? (A purely
+    #    non-circular failure is the main emerge's problem, not ours.)
+    r = resolve(targets)
+    if r["error"]:
+        log(f"resolution failed: {r['error']}")
+        return 1
+    if not r["circular"]:
+        log("no circular dependencies, nothing to do." if r["success"] else
+            "resolution failed for a reason other than circular dependencies; "
+            "leaving it to the main emerge to report.")
         return 0
 
-    # pre-emerge only the cycle-breaking packages that are actually in the
-    # resolved graph (the wholesale fallback above may have added extras)
-    merges = set(r["merges"])
-    needed = [pkg for pkg in acted if pkg in merges]
+    # 2. There is at least one cycle. Rather than chase the single cycle portage
+    #    happened to report (which is cache- and option-dependent -- see the
+    #    module docstring), apply the whole breaker table at once and confirm it
+    #    clears every cycle.
+    log("circular dependencies detected; applying breaker USE for the whole "
+        "table and re-resolving ...")
+    write_breaker_pkguse(list(table), table)
+    r = resolve(targets)
+    if r["error"]:
+        log(f"resolution failed: {r['error']}")
+        return 1
+    if r["circular"]:
+        cyc = " ".join(sorted(set(r.get("cycle_packages", []))))
+        log("circular dependencies remain even with the whole breaker table "
+            "applied" + (f" (among: {cyc})" if cyc else "") + "; the table needs "
+            "updating (or use circulardep_breaker in genpack.json5 as a stopgap).")
+        return 1
+
+    # 3. Cycles are gone (r may still report a non-circular failure -- keyword/USE
+    #    autounmask, slot conflicts -- which is the main emerge's job). Pre-emerge
+    #    every table package present in the graph so it is built as a warm binpkg
+    #    with reduced USE; the main emerge then rebuilds it with full USE against
+    #    the now-installed version, ordering freely because warm binpkgs break
+    #    build-time cycles. Emerging with the whole table still in effect keeps
+    #    every pre-emerge closure cycle-free too.
+    merges = set(r.get("merges", []))
+    needed = [pkg for pkg in table if pkg in merges]
     if not needed:
-        log("cycles were broken by USE flags alone but no breaker package is part of "
-            "the dependency graph; the table may need updating.")
+        log("cycles were broken by USE flags alone but no breaker package is part "
+            "of the dependency graph; the table may need updating.")
         return 1
 
     log(f"emerging breaker packages: {' '.join(needed)}")
-    # the package.use file is still in effect, so each package builds with its
-    # reduced USE; the main emerge later rebuilds them with full USE against
-    # the now-installed versions
     emerge_cmd = ["emerge", "--oneshot", "--update", "--buildpkg", "--usepkg",
                   "--binpkg-respect-use=y"]
     if args.pretend:
