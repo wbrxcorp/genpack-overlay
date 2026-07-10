@@ -1,2 +1,14 @@
 app-admin/eclean-kernel
 dev-python/pymountboot # needed by eclean-kernel
+
+# for nextcloud
+dev-php/pecl-imagick
+dev-php/pecl-redis
+dev-util/trace-cmd
+dev-php/PEAR-PEAR **
+dev-php/PEAR-Archive_Tar **
+dev-php/PEAR-Console_Getopt **
+dev-php/PEAR-Exception **
+dev-php/PEAR-Structures_Graph **
+dev-php/PEAR-XML_Util **
+
