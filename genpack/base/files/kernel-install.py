@@ -2,15 +2,24 @@
 import os,glob,subprocess,re
 
 def decompress_kernel_if_necessary(kernel):
-    # decompress kernel if compressed by CONFIG_EFI_ZBOOT
+    # decompress kernel if compressed by CONFIG_EFI_ZBOOT or plain gzip(arm64 Image.gz).
+    # GRUB transparently decompresses gzip so keeping the kernel uncompressed is harmless,
+    # while U-Boot's booti(extlinux) requires an uncompressed Image unless the board env
+    # provides kernel_comp_addr_r/kernel_comp_size (Gateworks Catalina lacks the latter).
     kernel_bin = None
     with open(kernel, "rb") as f:
         kernel_bin = f.read()
-        if len(kernel_bin) < 32 or kernel_bin[0:8] != b"MZ\x00\x00zimg" or kernel_bin[24:28] != b"gzip": return False
-    #else
-    gzip_offset = kernel_bin.find(b"\x1f\x8b\x08\x00\x00\x00\x00\x00")
-    if gzip_offset < 0:
-        print("Kernel compressed but gzip header not found: %s" % kernel)
+    gzip_offset = None
+    if len(kernel_bin) >= 32 and kernel_bin[0:8] == b"MZ\x00\x00zimg" and kernel_bin[24:28] == b"gzip":
+        # EFI zboot wrapped gzip
+        gzip_offset = kernel_bin.find(b"\x1f\x8b\x08\x00\x00\x00\x00\x00")
+        if gzip_offset < 0:
+            print("Kernel compressed but gzip header not found: %s" % kernel)
+            return False
+    elif len(kernel_bin) >= 2 and kernel_bin[0:2] == b"\x1f\x8b":
+        # plain gzip (e.g. arm64 Image.gz installed by kernel-build eclass)
+        gzip_offset = 0
+    else:
         return False
     #else
     print("Decompressing compressed kernel %s..." % kernel)

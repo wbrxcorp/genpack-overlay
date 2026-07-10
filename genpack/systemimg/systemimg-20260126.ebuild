@@ -6,13 +6,21 @@ SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
 IUSE="baremetal"
 
+# baremetal時のfirmware選択依存について:
+# 汎用ベアメタルではsys-kernel/linux-firmwareが必要だが、対象ハードウェアが固定される
+# SBCではほぼ全てが無駄なブロブになるため、各SBCプロファイルが必ず導入する小さな
+# ボード固有パッケージでもこの依存を満たせるよう||に列挙している。
+#   - raspberrypi: sys-firmware/raspberrypi-wifi-ucode
+#   - catalina:    genpack/catalina-bootfiles (Catalina基板はカーネルがロードする
+#     firmwareブロブを必要としないことを実機確認済み(2026-07)。専用の空firmware
+#     パッケージを作る代わりにブートファイルパッケージを代表として使う)
 RDEPEND="
 	genpack/base
 	!genpack/paravirt
 	genpack/genpack-install
 	sys-apps/kbd
-	baremetal? ( 
-		|| ( sys-kernel/linux-firmware sys-firmware/raspberrypi-wifi-ucode )
+	baremetal? (
+		|| ( sys-kernel/linux-firmware sys-firmware/raspberrypi-wifi-ucode genpack/catalina-bootfiles )
 		sys-fs/lsscsi
 		sys-apps/lshw
 		sys-apps/hwloc
