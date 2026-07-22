@@ -1,0 +1,62 @@
+#!/bin/bash
+# /usr/bin/nslookup — fake shim installed when net-dns/doggo is present.
+#
+# genpack intentionally does NOT ship net-dns/bind-tools (dropped per Gentoo
+# bug #977172, which removes bind-tools from the tree); net-dns/doggo is used
+# instead. This shim is a rescue measure for the muscle-memory
+# `nslookup NAME [SERVER]` / `nslookup -type=TYPE NAME [SERVER]`: it scolds
+# you, teaches the modern equivalent, then runs the query through doggo
+# anyway. Interactive mode (bare `nslookup` with no args) has no doggo
+# equivalent, so that case just prints guidance and exits.
+
+qtype=A
+name=
+server=
+
+for arg in "$@"; do
+    case $arg in
+        -type=*|-q=*|-query=*)
+            qtype=$(echo "${arg#*=}" | tr '[:lower:]' '[:upper:]')
+            ;;
+        -*)
+            # unsupported classic nslookup option (e.g. -debug, -timeout=) — ignored
+            ;;
+        *)
+            if [ -z "$name" ]; then
+                name=$arg
+            else
+                server=$arg
+            fi
+            ;;
+    esac
+done
+
+if [ -z "$name" ]; then
+    cat >&2 <<'EOF'
+usage: nslookup [-type=TYPE] NAME [SERVER]   (this is genpack's fake nslookup)
+
+Interactive nslookup (no arguments) is not supported here — genpack does not
+ship net-dns/bind-tools on purpose. Use doggo directly instead:
+    doggo NAME
+    doggo TYPE NAME @SERVER
+EOF
+    exit 2
+fi
+
+cat >&2 <<EOF
+──────────────────────────────────────────────────────────────────
+You reached for nslookup out of habit again. This is NOT the real
+nslookup — genpack does not ship net-dns/bind-tools on purpose
+(see Gentoo bug #977172). net-dns/doggo is installed instead.
+Fine, I'll run this one lookup for you via doggo.
+
+Next time, type this instead:
+    doggo $qtype $name${server:+ @$server}
+──────────────────────────────────────────────────────────────────
+EOF
+
+if [ -n "$server" ]; then
+    exec doggo "$qtype" "$name" "@$server"
+else
+    exec doggo "$qtype" "$name"
+fi

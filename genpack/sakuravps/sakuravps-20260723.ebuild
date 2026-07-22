@@ -15,7 +15,7 @@ RDEPEND="
     net-analyzer/tcpdump
     net-analyzer/snort
     net-analyzer/traceroute
-    net-dns/bind-tools
+    net-dns/doggo
     net-misc/bridge-utils
     net-misc/iperf
     sys-fs/xfsprogs

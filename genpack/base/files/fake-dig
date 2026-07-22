@@ -1,0 +1,51 @@
+#!/bin/bash
+# /usr/bin/dig — fake shim installed when net-dns/doggo is present.
+#
+# genpack intentionally does NOT ship net-dns/bind-tools (dropped per Gentoo
+# bug #977172, which removes bind-tools from the tree); net-dns/doggo is used
+# instead. This shim is a rescue measure for the muscle-memory
+# `dig [@server] NAME [TYPE] [+options]`: it scolds you, teaches the modern
+# equivalent, then runs the query through doggo anyway. doggo accepts
+# `@server`, TYPE and NAME in any order just like dig, so most invocations
+# pass straight through; only dig's `+option` flags need translating and only
+# `+short` has a direct doggo equivalent (`--short`) — other `+options` are
+# dropped with a warning.
+
+doggo_args=()
+dropped=()
+
+for arg in "$@"; do
+    case $arg in
+        +short)
+            doggo_args+=(--short)
+            ;;
+        +*)
+            dropped+=("$arg")
+            ;;
+        *)
+            doggo_args+=("$arg")
+            ;;
+    esac
+done
+
+if [ ${#doggo_args[@]} -eq 0 ]; then
+    echo "usage: dig [@SERVER] NAME [TYPE] [+short]   (this is genpack's fake dig)" >&2
+    exit 2
+fi
+
+cat >&2 <<EOF
+──────────────────────────────────────────────────────────────────
+You reached for dig out of habit again. This is NOT the real dig —
+genpack does not ship net-dns/bind-tools on purpose (see Gentoo bug
+#977172). net-dns/doggo is installed instead. Fine, I'll run this
+one lookup for you via doggo.
+
+Next time, type this instead:
+    doggo ${doggo_args[*]}
+EOF
+if [ ${#dropped[@]} -gt 0 ]; then
+    echo "(ignored unsupported dig option(s): ${dropped[*]})" >&2
+fi
+echo "──────────────────────────────────────────────────────────────────" >&2
+
+exec doggo "${doggo_args[@]}"

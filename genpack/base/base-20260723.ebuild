@@ -68,6 +68,17 @@ src_install() {
     exeinto /usr/bin
     newexe "${FILESDIR}/fake-telnet" telnet
 
+    # Staging sources for the fake nslookup/dig shims (see files/fake-nslookup,
+    # files/fake-dig): only copied into /usr/bin by package-scripts/net-dns/doggo
+    # below, i.e. only when an artifact actually pulls in net-dns/doggo as a
+    # replacement for the now-dropped net-dns/bind-tools (Gentoo bug #977172).
+    insinto /usr/lib/genpack
+    doins "${FILESDIR}/fake-nslookup"
+    doins "${FILESDIR}/fake-dig"
+
+    exeinto /usr/lib/genpack/package-scripts/net-dns/doggo
+    doexe "${FILESDIR}/doggo.sh"
+
     # script for genpack
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
     doexe "${FILESDIR}/copyup-fundamentals.sh"
