@@ -14,7 +14,7 @@ inherit python-single-r1 git-r3
 
 DESCRIPTION="OS image builder based on Gentoo Linux"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack.git"
-EGIT_COMMIT="50f24a317934e6dba5089559cf5737e2c1383ff7"
+EGIT_COMMIT="5fc6a56d3a7195480927883ec6bc93614838cce3"
 
 LICENSE="MIT"
 SLOT="0"
