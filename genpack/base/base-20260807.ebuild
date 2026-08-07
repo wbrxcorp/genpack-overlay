@@ -5,7 +5,7 @@ DESCRIPTION="base system"
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
 
-IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner +cloudflared"
+IUSE="+vi +strace +btrfs +xfs +wireguard +cron +audit +logrotate +sshd +tcpdump +banner +cloudflared console-passwd"
 
 REQUIRED_USE="
     logrotate? ( cron )
@@ -42,6 +42,7 @@ RDEPEND="
     audit? ( sys-process/audit )
     logrotate? ( app-admin/logrotate )
     cloudflared? ( net-vpn/cloudflared )
+    console-passwd? ( sys-libs/pam[-berkdb] dev-lang/python[gdbm] )
 "
 
 S="${WORKDIR}"
@@ -168,6 +169,19 @@ src_install() {
     if use vi; then
         exeinto /usr/lib/genpack/package-scripts/app-editors/vim
         doexe "${FILESDIR}/vim.sh"
+    fi
+    if use console-passwd; then
+        # /etc/pam.d/login belongs to sys-auth/pambase, so the PAM stack is
+        # edited by a package-script instead of being installed from here.
+        # The USE deps above are what keep that stack sane: pam_userdb must be
+        # the gdbm flavour (sys-libs/pam[-berkdb]) to read the database that
+        # console-passwd writes through dbm.gnu (dev-lang/python[gdbm]).
+        # A mismatch would only show up as a console nobody can log into.
+        exeinto /usr/lib/genpack/package-scripts/sys-auth/pambase
+        doexe "${FILESDIR}/console-passwd.sh"
+
+        exeinto /usr/bin
+        newexe "${FILESDIR}/console-passwd.py" console-passwd
     fi
 
     exeinto /usr/bin
