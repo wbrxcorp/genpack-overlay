@@ -4,7 +4,7 @@ inherit git-r3
 DESCRIPTION="system.img installer and ISO/ZIP image builders"
 HOMEPAGE="https://github.com/wbrxcorp/genpack-install"
 EGIT_REPO_URI="https://github.com/wbrxcorp/genpack-install.git"
-EGIT_COMMIT="f1e6f73b39c63ddf6c980a737ce301f059877035"
+EGIT_COMMIT="84af5a23656d09bd795b6ccb40776e6c2185c0ce"
 
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
