@@ -14,7 +14,7 @@ REQUIRED_USE="
 RDEPEND="
     || ( sys-kernel/gentoo-kernel-bin[initramfs] sys-kernel/gentoo-kernel[initramfs] sys-kernel/raspberrypi-image sys-kernel/catalina-kernel[initramfs] )
     sys-kernel/dracut-genpack
-    sys-apps/genpack-init
+    >=sys-apps/genpack-init-20260809
     sys-apps/gentoo-systemd-integration
     sys-libs/timezone-data
     app-alternatives/sh

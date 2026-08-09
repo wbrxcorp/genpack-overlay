@@ -1,7 +1,9 @@
-import os,logging,re
+import os,logging
+
+from genpack_init_helper import merge_env_file
 
 def configure(ini=None):
-    lang_firmware_path = '/sys/firmware/qemu_fw_cfg/by_name/opt/lang/raw'   
+    lang_firmware_path = '/sys/firmware/qemu_fw_cfg/by_name/opt/lang/raw'
     if not os.path.isfile(lang_firmware_path): return
     #else
     # read the LANG from the firmware file
@@ -9,14 +11,9 @@ def configure(ini=None):
         lang = f.read().strip()
     if lang == "": return
 
-    if os.path.isfile("/etc/profile.env"):
-        profile_env = open("/etc/profile.env", 'r').read()
-        profile_env = re.sub(r'^export LANG=.*\n', f"export LANG='{lang}'\n", profile_env, flags=re.MULTILINE)
-        with open("/etc/profile.env", 'w') as f:
-            f.write(profile_env)
-        logging.info("LANG set to %s(profile.env)", lang)
-        return
-    #else
-    with open("/etc/locale.conf", 'w') as f:
-        f.write(f"LANG=\"{lang}\"\n")
-    logging.info("LANG set to %s(locale.conf)", lang)
+    # /etc/profile.env used to be written here instead, which left system
+    # services on a different locale and pinned that file into the overlayfs
+    # upper layer on the first boot, so later image updates to it never applied.
+    merge_env_file("/etc/locale.conf", "LANG", lang)
+    merge_env_file("/etc/environment", "LANG", lang)
+    logging.info("LANG set to %s", lang)

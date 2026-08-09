@@ -9,6 +9,7 @@ IUSE=""
 
 RDEPEND="
     genpack/base
+    >=sys-apps/genpack-init-20260809
     !genpack/systemimg
     app-emulation/qemu-guest-agent
     sys-libs/liburing

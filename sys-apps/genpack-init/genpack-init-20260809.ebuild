@@ -27,6 +27,11 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" PREFIX="/usr" install || die "emake install failed"
 
+	# Shared helpers for the /usr/lib/genpack-init scripts.  Goes into
+	# site-packages of the interpreter genpack-init embeds, because that
+	# directory is not on sys.path and the scripts cannot import each other.
+	python_domodule "${FILESDIR}/genpack_init_helper.py"
+
 	insinto /usr/lib/genpack-init
 	doins "${FILESDIR}/99default_network_interface.py"
 
