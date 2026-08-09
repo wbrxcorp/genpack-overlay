@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+# Unused since genpack a6ea03c (2026-05-19), which switched the upper layer to
+# overlayfs copy-up and moved to genpack-exec-package-scripts. Kept only so that
+# a genpack from before that commit keeps working, together with list-pkg-files,
+# which it reads _pkgs_with_deps.pkl from. Delete both once no such genpack is
+# left in use.
 import os,sys,subprocess,logging,glob,pickle,argparse
 
 import portage

@@ -1,4 +1,10 @@
-#!/usr/bin/python3 
+#!/usr/bin/python3
+# Unused since genpack a6ea03c (2026-05-19), which switched the upper layer to
+# overlayfs copy-up and moved to genpack-copyup. Kept only so that a genpack from
+# before that commit keeps working, together with
+# exec-package-scripts-and-generate-metadata, which consumes the
+# _pkgs_with_deps.pkl written here. Delete both once no such genpack is left in
+# use.
 import os,sys,re,argparse,logging,pickle
 from pathlib import Path
 

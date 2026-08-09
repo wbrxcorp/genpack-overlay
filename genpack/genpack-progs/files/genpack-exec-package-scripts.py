@@ -1,4 +1,10 @@
 #!/usr/bin/python3
+# Frozen, and a candidate for removal once no genpack this old is left in use.
+# Superseded by genpack-package-scripts, which no longer generates the metadata:
+# writing it here describes the image before the artifact has finished building
+# it, so genpack-generate-metadata does that at the end of the upper phase
+# instead. This script is kept for genpack versions that predate the split and
+# still call it.
 import os, glob, logging, argparse, subprocess
 
 from genpack_pkg import get_runtime_packages

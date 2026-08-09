@@ -37,9 +37,14 @@ src_install() {
     newexe "${FILESDIR}/get-rpm-download-url.py" get-rpm-download-url
     newexe "${FILESDIR}/get-github-download-url.py" get-github-download-url
     newexe "${FILESDIR}/findelf.py" findelf
-    # kept for backward compatibility with older genpack versions
+    newexe "${FILESDIR}/genpack-package-scripts.py" genpack-package-scripts
+    newexe "${FILESDIR}/genpack-generate-metadata.py" genpack-generate-metadata
+    # kept for backward compatibility with older genpack versions; candidates for
+    # removal once no genpack that old is left in use.
+    # unused since genpack a6ea03c (2026-05-19, overlayfs copy-up):
     newexe "${FILESDIR}/list-pkg-files.py" list-pkg-files
     newexe "${FILESDIR}/exec-package-scripts-and-generate-metadata.py" exec-package-scripts-and-generate-metadata
+    # unused since genpack split metadata generation out (2026-08-09):
     newexe "${FILESDIR}/genpack-exec-package-scripts.py" genpack-exec-package-scripts
     newexe "${FILESDIR}/genpack-copyup.py" genpack-copyup
     newexe "${FILESDIR}/execute-artifact-build-scripts.py" execute-artifact-build-scripts
