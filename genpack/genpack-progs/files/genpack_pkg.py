@@ -28,7 +28,7 @@ def get_package_set(set_name):
         the_set = sets_map["profile"]
         atoms = (the_set.getAtoms() if hasattr(the_set, "getAtoms")
                  else getattr(the_set, "atoms", list(the_set)))
-        return [dep_getkey(atom.lstrip("!")) for atom in atoms
+        return [dep_getkey(atom) for atom in atoms
                 if not str(atom).startswith("-")]
     path = f"/etc/portage/sets/{set_name}"
     if not os.path.isfile(path):

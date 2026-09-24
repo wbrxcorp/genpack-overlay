@@ -28,8 +28,7 @@ def get_package_set(set_name):
     atoms = (the_set.getAtoms() if hasattr(the_set, "getAtoms")
              else getattr(the_set, "atoms", list(the_set)))
     for atom in atoms:
-        a = atom.lstrip('!')
-        cp = dep_getkey(a)  # e.g. '>=sys-apps/baselayout-2' -> 'sys-apps/baselayout'
+        cp = dep_getkey(atom)  # e.g. '>=sys-apps/baselayout-2' -> 'sys-apps/baselayout'
         pkgs.append(cp)
 
     return pkgs
