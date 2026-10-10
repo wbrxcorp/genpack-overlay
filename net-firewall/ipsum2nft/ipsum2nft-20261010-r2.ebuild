@@ -9,7 +9,7 @@ DESCRIPTION="Convert the IPsum blocklist to nftables"
 HOMEPAGE="https://github.com/shimarin/ipsum2nft"
 LICENSE="MIT"
 EGIT_REPO_URI="https://github.com/shimarin/ipsum2nft.git"
-EGIT_COMMIT="3b50c6dcdaa8e5515f41658685820d18440410fb"
+EGIT_COMMIT="20c397606c943a7108668f038907c1c9203a711c"
 
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
