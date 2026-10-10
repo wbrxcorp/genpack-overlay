@@ -9,7 +9,7 @@ DESCRIPTION="Convert the IPsum blocklist to nftables"
 HOMEPAGE="https://github.com/shimarin/ipsum2nft"
 LICENSE="MIT"
 EGIT_REPO_URI="https://github.com/shimarin/ipsum2nft.git"
-EGIT_COMMIT="176ccc8c608e5d120177e8bd30a689b942115f71"
+EGIT_COMMIT="3b50c6dcdaa8e5515f41658685820d18440410fb"
 
 SLOT="0"
 KEYWORDS="amd64 x86 arm64 riscv"
@@ -21,10 +21,10 @@ RDEPEND="${PYTHON_DEPS}
 
 src_prepare() {
 	default
-	# The unit hardcodes the binary path for the Makefile's default
+	# The units hardcode the binary path for the Makefile's default
 	# PREFIX (/usr/local); we install to /usr.
 	sed -i -e 's|/usr/local/bin/ipsum2nft|/usr/bin/ipsum2nft|' \
-		ipsum2nft.service || die
+		ipsum2nft.service ipsum2nft-notify.service || die
 }
 
 src_compile() {
@@ -39,4 +39,10 @@ src_install() {
 	# vendor unit directory rather than /etc/systemd/system.
 	emake DESTDIR="${D}" PREFIX="/usr" UNITDIR="/usr/lib/systemd/system" \
 		install || die "emake install failed"
+
+	# Template for the optional hit-notification daemon
+	# (ipsum2nft-notify.service); edit before enabling the service.
+	insinto /etc
+	newins ipsum2nft.conf.example ipsum2nft.conf
+	chmod 0600 "${ED}"/etc/ipsum2nft.conf
 }
