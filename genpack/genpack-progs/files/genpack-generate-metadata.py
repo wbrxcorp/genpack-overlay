@@ -12,12 +12,13 @@
 # from it however late this runs -- and then goes unchecked by glsa-check in the
 # running image. Fixing that means changing how the list is derived, not when.
 #
-# The metadata mostly comes from environment variables genpack passes in. Only
-# the names below are genpack's: banner (written by the genpack/base[banner]
-# package script, and meant to stay overridable) and whatever the artifact keeps
-# here itself are left alone. A name genpack has no value for is unlinked rather
-# than left as found, so a file carried in from elsewhere cannot pass for
-# generated metadata.
+# The metadata mostly comes from environment variables genpack passes in. The
+# names genpack owns are the ENV_METADATA below, plus genpack.md (re-placed by
+# this script from genpack/base's copy, see PRIMER_SOURCE). banner (written by
+# the genpack/base[banner] package script, and meant to stay overridable) and
+# whatever the artifact keeps here itself are left alone. A name genpack has no
+# value for is unlinked rather than left as found, so a file carried in from
+# elsewhere cannot pass for generated metadata.
 #
 # None of this makes the metadata proof against an artifact that sets out to
 # forge it -- build scripts run as root and can replace the very commands genpack
@@ -37,6 +38,16 @@ ENV_METADATA = [
     ("VARIANT", "variant"),
     ("COMMIT_ID", "commit-id"),
 ]
+
+# The primer genpack/base stages for agents that log into a built artifact. It
+# lives in the staging directory /usr/lib/genpack/, which genpack-copyup excludes
+# from every image, so the primer only reaches a runtime image through this copy:
+# /.genpack/ is genpack's own namespace and is never trimmed. Copying from the
+# staged package file instead of trusting what is already in the upper layer keeps
+# the copy aligned with the genpack/base version actually in the image, and
+# overwrites one carried in by files/.
+PRIMER_SOURCE = "/usr/lib/genpack/genpack.md"
+PRIMER_NAME = "genpack.md"
 
 def clear(path):
     """Remove path if it exists, symlinks and directories included.
@@ -102,6 +113,17 @@ def generate_metadata(pkgs_with_deps):
                 if prop in pkg:
                     f.write(f"# {prop}: {pkg[prop]}\n")
             f.write("\n")
+
+    primer = os.path.join(GENPACK_METADATA_DIR, PRIMER_NAME)
+    if os.path.isfile(PRIMER_SOURCE):
+        clear(primer)
+        shutil.copyfile(PRIMER_SOURCE, primer)
+        logging.info(f"Placed {PRIMER_SOURCE} as {primer}")
+    else:
+        if clear(primer):
+            logging.warning(f"{PRIMER_SOURCE} not found (genpack/base too old), removed {primer}")
+        else:
+            logging.warning(f"{PRIMER_SOURCE} not found (genpack/base too old), skipping {PRIMER_NAME}")
 
 def main():
     logging.info("Enumerating runtime packages...")

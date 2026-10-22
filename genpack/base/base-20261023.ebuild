@@ -80,6 +80,16 @@ src_install() {
     exeinto /usr/lib/genpack/package-scripts/net-dns/doggo
     doexe "${FILESDIR}/doggo.sh"
 
+    # The primer for agents that log into a built artifact, staged the same way
+    # the genpack-init plugins above are. It is *not* installed into a docdir:
+    # portage compresses /usr/share/doc/ on merge and QA-rejects an unversioned
+    # docdir, and genpack-copyup would trim it from non-devel images anyway.
+    # genpack-generate-metadata (genpack-progs) copies it to /.genpack/genpack.md
+    # during the upper phase, which is where it is meant to be read; staging it
+    # in this excluded directory keeps the primer out of every layer but that one.
+    insinto /usr/lib/genpack
+    doins "${FILESDIR}/genpack.md"
+
     # script for genpack
     exeinto /usr/lib/genpack/package-scripts/${CATEGORY}/${PN}
     doexe "${FILESDIR}/copyup-fundamentals.sh"
